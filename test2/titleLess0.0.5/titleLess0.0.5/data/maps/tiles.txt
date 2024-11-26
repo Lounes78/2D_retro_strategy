@@ -1,0 +1,9 @@
+G grass.png
+F flowers.png
+S sand.png
+M bigMountain.png
+R road.png
+W water.png
+D deepWater.png
+B tileBase.png
+I bigIce.png

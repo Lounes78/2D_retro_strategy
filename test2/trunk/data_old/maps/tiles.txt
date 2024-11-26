@@ -1,0 +1,8 @@
+G grass.png
+F flowers.png
+S sand.png
+M mountain.png
+R road.png
+W water.png
+D deepWater.png
+B base.png

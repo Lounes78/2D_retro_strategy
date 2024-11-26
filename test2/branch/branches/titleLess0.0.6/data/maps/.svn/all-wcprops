@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/63/branches/titleLess0.0.6/data/maps
+END
+newDungeon.txt
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/62/branches/titleLess0.0.6/data/maps/newDungeon.txt
+END
+azulejosBloqueados.xml
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/62/branches/titleLess0.0.6/data/maps/azulejosBloqueados.xml
+END
+azulejos.xml
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/62/branches/titleLess0.0.6/data/maps/azulejos.xml
+END
+mapa1.xml
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/62/branches/titleLess0.0.6/data/maps/mapa1.xml
+END
+tiles.txt
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/58/branches/titleLess0.0.6/data/maps/tiles.txt
+END
+azulejosGrandes.xml
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/62/branches/titleLess0.0.6/data/maps/azulejosGrandes.xml
+END
+mapa2.xml
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/62/branches/titleLess0.0.6/data/maps/mapa2.xml
+END
+bigTiles.txt
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/58/branches/titleLess0.0.6/data/maps/bigTiles.txt
+END
+mapa3.xml
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/63/branches/titleLess0.0.6/data/maps/mapa3.xml
+END
+nwTiles.txt
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/58/branches/titleLess0.0.6/data/maps/nwTiles.txt
+END
+demo.xml
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/63/branches/titleLess0.0.6/data/maps/demo.xml
+END
