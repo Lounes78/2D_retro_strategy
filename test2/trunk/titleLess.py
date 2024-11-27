@@ -118,6 +118,6 @@ while 1:
     screen.blit(background, (0, 0))
     firstDungeon.fillDungeon(dracko)
     pygame.display.update()
-    pygame.time.delay(25)  # for the speed 
+    pygame.time.delay(120)  # for the speed 
 sound.music.stop()
 pygame.time.delay(1000)

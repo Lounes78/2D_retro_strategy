@@ -8,7 +8,7 @@ class spriteManager(object):
 
         self.dungeon = dungeon
         self._media = media
-        self.mapPosition = [0, 0]
+        self.mapPosition = [0, 0] # position of the sprite 
         self.spriteFrontLeft = []
         self.spriteFrontLeft.append(self._media.loadImage(os.path.join('data', 'images', 'character', 'frontLeftDrackoTwo.png')))
         self.spriteFrontLeft.append(self._media.loadImage(os.path.join('data', 'images', 'character', 'frontLeftDrackoOne.png')))
@@ -55,8 +55,7 @@ class spriteManager(object):
 
     def update(self, direction):
         """Moves the sprites."""
-
-        if direction is 1:
+        if direction == 1:
             if self.mapPosition[0] > 0 and not self._nextNotWalkable(-1, 0):
                 self.mapPosition[0] -= 1
                 self.mapScrollY = -1
@@ -64,7 +63,7 @@ class spriteManager(object):
                 self.sprite = self.spriteBackRightWater
             else:
                 self.sprite = self.spriteBackRight
-        elif direction is 2:
+        elif direction == 2:
             if self.mapPosition[0] < len(self.dungeon.dungeon) - 1 and not self._nextNotWalkable(1, 0):
                 self.mapPosition[0] += 1
                 self.mapScrollY = 1
@@ -72,7 +71,7 @@ class spriteManager(object):
                 self.sprite = self.spriteFrontLeftWater
             else:
                 self.sprite = self.spriteFrontLeft
-        elif direction is 3:
+        elif direction == 3:
             if self.mapPosition[1] > 0 and not self._nextNotWalkable(0, -1):
                 self.mapPosition[1] -= 1
                 self.mapScrollX = -1
@@ -80,7 +79,7 @@ class spriteManager(object):
                 self.sprite = self.spriteBackLeftWater
             else:
                 self.sprite = self.spriteBackLeft
-        elif direction is 4:
+        elif direction == 4:
             if self.mapPosition[1] < len(self.dungeon.dungeon[0]) - 1 and not self._nextNotWalkable(0, 1):
                 self.mapPosition[1] += 1
                 self.mapScrollX = 1
@@ -93,14 +92,14 @@ class spriteManager(object):
         """Checks if next tilde is deep water."""
 
         if self.dungeon.dungeon[self.mapPosition[0] + row][self.mapPosition[1] + col] in self.dungeon.nwTiles:
-            return True
+            return False
         else:
             return False
 
     def _isInWater(self):
         """Checks if the character is walking in water."""
 
-        if self.dungeon.dungeon[self.mapPosition[0]][self.mapPosition[1]] is "W":
+        if self.dungeon.dungeon[self.mapPosition[0]][self.mapPosition[1]] == "W":
             return True
         else:
             return False
