@@ -13,8 +13,12 @@ from windowManager import *
 from dungeonManager import *
 from spriteManager import *
 
+# Pygame initialisation
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
+
+
+# Loading multiple things
 media = loadMedia()
 windowManager = windowManager(screen)
 background = media.loadImage(os.path.join('data', 'images', 'background', 'firstDungeon.png'))
@@ -28,19 +32,27 @@ characterInto.append(media.loadImage(os.path.join('data', 'images', 'character',
 characterInto.append(media.loadImage(os.path.join('data', 'images', 'character', 'frontLeftDrackoThree.png')))
 font = pygame.font.SysFont("Courier New", 15)
 font = font.render("Press Enter to continue or Esc to Exit.", 1, (255, 255, 255))
-dummyCounter = 0
-spriteCounter = 0
 sound = media.loadSound(os.path.join('data', 'music', 'bjorn__lynne-_no_survivors_.mid'))
 sound.music.play(-1)
+
+
+# Positionement of the elements (logos, heros, text) 
+dummyCounter = 0
+spriteCounter = 0
+# Logo
 centeredLogoX = windowManager.centerItemX(logo[spriteCounter])
 centeredLogoY = windowManager.centerItemY(logo[spriteCounter])
+# Character
 centeredCharacterX = windowManager.centerItemX(characterInto[spriteCounter]) + logo[spriteCounter].get_width() / 2 - 10
 centeredCharacterY = windowManager.centerItemY(characterInto[spriteCounter]) + logo[spriteCounter].get_height() / 2 - 30
+# Font
 centerFontX = windowManager.centerItemX(font)
 centerFontY = windowManager.centerItemY(font) + windowManager.centerItemX(logo[spriteCounter]) / 4
-while 1:
+
+
+while 1:  # First loop for the hello screen 
     pygame.event.pump()
-    keyInput = pygame.key.get_pressed()
+    keyInput = pygame.key.get_pressed() # returns a list of all keys' states
     screen.blit(background, (0, 0))
     dummyCounter += 1
     flag = False
@@ -58,29 +70,38 @@ while 1:
         flag = True
     elif dummyCounter == 1200:
         dummyCounter = 0
+        
     if flag:
         screen.blit(logo[spriteCounter], (centeredLogoX, centeredLogoY))
         screen.blit(characterInto[spriteCounter], (centeredCharacterX, centeredCharacterY))
         screen.blit(font, (centerFontX, centerFontY))
-        pygame.display.update()
+        pygame.display.update() # Update the content of the screen 
     if keyInput[K_RETURN]:
         break
     elif keyInput[K_ESCAPE] or pygame.event.peek(QUIT):
         sys.exit()
+        
+        
+# Loading the game
 pygame.time.delay(500)
 sound.music.stop()
 sound = media.loadSound(os.path.join('data', 'music', 'bjorn__lynne-_the_long_journey_home.mid'))
 sound.music.play(-1)
+
 tildeFile = media.loadReadFile(os.path.join('data', 'maps', 'tiles.txt'))
 dungeonFile = media.loadReadFile(os.path.join('data', 'maps', 'firstDungeon.txt'))
 nwTiles = media.loadReadFile(os.path.join('data', 'maps', 'tiles.txt'))
+
 firstDungeon = dungeonManager(media, windowManager, screen)
 firstDungeon.recordNonWalkableTiles(nwTiles)
 firstDungeon.recordTiles(tildeFile)
 firstDungeon.recordDungeon(dungeonFile)
+
 screen.blit(background, (0, 0))
 dracko = spriteManager(firstDungeon, media)
 pygame.display.update()
+
+
 while 1:
     pygame.event.pump()
     keyInput = pygame.key.get_pressed()
@@ -97,6 +118,6 @@ while 1:
     screen.blit(background, (0, 0))
     firstDungeon.fillDungeon(dracko)
     pygame.display.update()
-    pygame.time.delay(250)
+    pygame.time.delay(25)  # for the speed 
 sound.music.stop()
 pygame.time.delay(1000)
