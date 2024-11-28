@@ -57,78 +57,144 @@ class dungeonManager(object):
             self.elevation.append(self._rowTwo)
 
 
-    # Draw the actual map
-    def fillDungeon(self, sprite = None):
-        """ Fills the dungeon maps.
-            It processes each tile in the dungeon map and displays it with appropriate visual elements
-            e.g., elevation, items, and a sprite representing a player or object.
-        """
-        
-        self._sprite = sprite # The character or object being rendered, has prop like mapPosition, ...
-        self._stepX = 0         # Track the current screen position for rendering tiles
-        self._stepY = 150       # """"""""
-        self._rewinderStepX = 0
+
+
+
+    def fillDungeon_tiles(self, unit_positions):
+        """Render only the tiles of the dungeon."""
+        self._stepX = 0 # en pixel
+        self._stepY = 150
+        self._rewinderStepX = 0 # At the start of each row, self._stepX is reset to self._rewinderStepX ensuring the rows are correctly spaced.
         self._rewinderStepY = 150
-        self._decreaseY = 0
-        self.lastValueOfY = 150
-        self._tmp = 0
-        self._moveMapX = self._sprite.mapPosition[1] - 17
-        self._moveMapY = self._sprite.mapPosition[0] - 19
-        
-        if self._sprite:
-            if self._tmpAnimateSprite == 4:
-                self._tmpAnimateSprite = 0
-            if self._sprite.mapPosition[1] >= 18 and self._sprite.mapScrollX == 1 and self._moveMapX < len(self.dungeon[0]) - 19 and self._sprite.mapPosition[1] > self._rowTmp + 17:
-                self._rowTmp = self._moveMapX
-            elif self._sprite.mapPosition[1] - 1 > self._rowTmp:
-                self._rowTmp = self._rowTmp
-            elif not self._rowTmp == 0:
-                self._rowTmp -= 1
-            if self._sprite.mapPosition[0] >= 20 and self._sprite.mapScrollY == 1 and self._moveMapY < len(self.dungeon) - 21 and self._sprite.mapPosition[0] > self._colTmp + 19:
-                self._colTmp = self._moveMapY
-            elif self._sprite.mapPosition[0] - 1 > self._colTmp:
-                self._colTmp = self._colTmp
-            elif not self._colTmp == 0:
-                self._colTmp -= 1
-                
-        self._row = self._rowTmp
-        self._col = self._colTmp
-        self._patch = 30
+        self._row = self._rowTmp #  the current row in the dungeon map to be rendered.
+        self._col = self._colTmp # en terme de nombre de colonnes
+        self._patch = 30 # to avoid overlap
+        # X-coordinate where the current tile should be rendered, 
         self._centeredItemX = self._windowManager.centerItemX(self._dict[self.dungeon[self._col][self._row]]) + 20
-        
-        while 1: #  iterates through the dungeon map, rendering one tile at a time
-            
+                        
+        highlight_positions = set()
+        for unit in unit_positions:
+            row, col = unit
+            for dr in [-2, -1, 0, 1, 2]:
+                for dc in [-2, -1, 0, 1, 2]:
+                    if abs(dr) + abs(dc) <= 2:  # Limit to a radius of 2 tiles
+                        highlight_positions.add((row + dr, col + dc))
+                        
+        while True:
+            current_position = (self._col, self._row)
+
+            # Tile highlight
+            if current_position in highlight_positions:
+                self._screen.blit(self._dict["R"], (self._centeredItemX + self._stepX, self._stepY - int(self.elevation[self._col][self._row]) * 20))
             # Tile rendering
-            if self.dungeon[self._col][self._row] is 'M':
+            elif self.dungeon[self._col][self._row] == 'M':
                 if int(self.elevation[self._col][self._row]) > 1:
                     for basePatch in range(1, int(self.elevation[self._col][self._row])):
-                        self._screen.blit(self._dict["B"], (self._centeredItemX + self._stepX, self._stepY - basePatch * 20))
-                self._screen.blit(self._dict[self.dungeon[self._col][self._row]], (self._centeredItemX + self._stepX, self._stepY - 80 - int(self.elevation[self._col][self._row]) * 20))            
-            elif not self.dungeon[self._col][self._row] is ' ':
+                        self._screen.blit(self._dict["B"], (self._centeredItemX + self._stepX, self._stepY - basePatch * 20)) #   -80 cause it should appear higher
+                self._screen.blit(self._dict[self.dungeon[self._col][self._row]], (self._centeredItemX + self._stepX, self._stepY - 80 - int(self.elevation[self._col][self._row]) * 20))
+            elif self.dungeon[self._col][self._row] != ' ':
                 if int(self.elevation[self._col][self._row]) > 1:
                     for basePatch in range(1, int(self.elevation[self._col][self._row])):
                         self._screen.blit(self._dict["B"], (self._centeredItemX + self._stepX, self._stepY - basePatch * 20))
                 self._screen.blit(self._dict[self.dungeon[self._col][self._row]], (self._centeredItemX + self._stepX, self._stepY - int(self.elevation[self._col][self._row]) * 20))
-            
-            # Sprite rendering
-            if self._sprite:
-                if self._sprite.mapPosition == [self._col, self._row]:
-                    self._screen.blit(self._sprite.sprite[self._tmpAnimateSprite], (self._centeredItemX + self._stepX, self._stepY - 20 - (int(self.elevation[self._col][self._row]) * 20)))
-                    self._tmpAnimateSprite += 1
-                    
-            # Move to the next tile in the row 
+
+            # Move to the next tile in the row
             self._stepX += 19
             self._stepY += 10
             self._row += 1
-            
-            if self._centeredItemX + self._stepX >= 800 - self._patch or self._row is len(self.dungeon[self._col]):
+
+            # Check if the end of the row or screen width is reached
+            if self._centeredItemX + self._stepX >= 800 - self._patch or self._row >= len(self.dungeon[self._col]):
                 self._patch += 19
                 self._row = self._rowTmp
                 self._col += 1
-                self.lastValueOfY = self._stepY
                 self._rewinderStepX -= 19
                 self._stepX = self._rewinderStepX
                 self._rewinderStepY += 10
                 self._stepY = self._rewinderStepY
-                if self._centeredItemX + self._stepX <= 0 or self._col is len(self.dungeon):
+
+                if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
                     break
+
+
+
+
+
+    def fillDungeon_sprites(self, sprite, unit_positions):
+        """Render only the sprite in the dungeon and highlight specific tiles."""
+        self._stepX = 0
+        self._stepY = 150
+        self._rewinderStepX = 0
+        self._rewinderStepY = 150
+        self._row = self._rowTmp
+        self._col = self._colTmp
+        self._patch = 30
+        self._centeredItemX = self._windowManager.centerItemX(self._dict[self.dungeon[self._col][self._row]]) + 20
+
+        while True:
+            # Sprite rendering
+            if sprite and sprite.mapPosition == [self._col, self._row]:
+                self._screen.blit(
+                    sprite.sprite[self._tmpAnimateSprite],
+                    (self._centeredItemX + self._stepX, self._stepY - 20 - int(self.elevation[self._col][self._row]) * 20)
+                )
+                self._tmpAnimateSprite = (self._tmpAnimateSprite + 1) % len(sprite.sprite)
+
+            # Move to the next tile in the row
+            self._stepX += 19
+            self._stepY += 10
+            self._row += 1
+
+            # Check if the end of the row or screen width is reached
+            if self._centeredItemX + self._stepX >= 800 - self._patch or self._row >= len(self.dungeon[self._col]):
+                self._patch += 19
+                self._row = self._rowTmp
+                self._col += 1
+                self._rewinderStepX -= 19
+                self._stepX = self._rewinderStepX
+                self._rewinderStepY += 10
+                self._stepY = self._rewinderStepY
+
+            # Break if we reach the end of the dungeon
+            if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
+                break
+
+
+    # def fillDungeon_sprites(self, sprite):
+    #     """Render only the sprite in the dungeon."""
+    #     self._stepX = 0
+    #     self._stepY = 150
+    #     self._rewinderStepX = 0
+    #     self._rewinderStepY = 150
+    #     self._row = self._rowTmp
+    #     self._col = self._colTmp
+    #     self._patch = 30
+    #     self._centeredItemX = self._windowManager.centerItemX(self._dict[self.dungeon[self._col][self._row]]) + 20
+
+    #     while True:
+    #         # Sprite rendering
+    #         if sprite and sprite.mapPosition == [self._col, self._row]:
+    #             self._screen.blit(
+    #                 sprite.sprite[self._tmpAnimateSprite],
+    #                 (self._centeredItemX + self._stepX, self._stepY - 20 - int(self.elevation[self._col][self._row]) * 20)
+    #             )
+    #             self._tmpAnimateSprite = (self._tmpAnimateSprite + 1) % len(sprite.sprite)
+
+    #         # Move to the next tile in the row
+    #         self._stepX += 19
+    #         self._stepY += 10
+    #         self._row += 1
+
+    #         # Check if the end of the row or screen width is reached
+    #         if self._centeredItemX + self._stepX >= 800 - self._patch or self._row >= len(self.dungeon[self._col]):
+    #             self._patch += 19
+    #             self._row = self._rowTmp
+    #             self._col += 1
+    #             self._rewinderStepX -= 19
+    #             self._stepX = self._rewinderStepX
+    #             self._rewinderStepY += 10
+    #             self._stepY = self._rewinderStepY
+
+             
+    #         if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
+    #             break

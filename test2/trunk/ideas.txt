@@ -1,0 +1,5 @@
+each player 1VS1 will have it s own view of the game
+
+camer zoom vers le player principal 
+et ad illin des mouvements de dezoom et rezoom lors de transition de player 
+

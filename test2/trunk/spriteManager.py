@@ -4,11 +4,11 @@ from pygame.locals import *
 
 class spriteManager(object):
 
-    def __init__(self, dungeon, media):
+    def __init__(self, dungeon, media, mapPosition):
 
         self.dungeon = dungeon
         self._media = media
-        self.mapPosition = [0, 0] # position of the sprite 
+        self.mapPosition = mapPosition # position of the sprite 
         self.spriteFrontLeft = []
         self.spriteFrontLeft.append(self._media.loadImage(os.path.join('data', 'images', 'character', 'frontLeftDrackoTwo.png')))
         self.spriteFrontLeft.append(self._media.loadImage(os.path.join('data', 'images', 'character', 'frontLeftDrackoOne.png')))
