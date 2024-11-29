@@ -2,6 +2,7 @@ import os, sys, random
 import pygame
 from pygame.locals import *
 
+
 class spriteManager(object):
 
     def __init__(self, dungeon, media, mapPosition):
@@ -9,6 +10,7 @@ class spriteManager(object):
         self.dungeon = dungeon
         self._media = media
         self.mapPosition = mapPosition # position of the sprite 
+        self._tmpAnimateSprite = 0
         self.spriteFrontLeft = []
         self.spriteFrontLeft.append(self._media.loadImage(os.path.join('data', 'images', 'character', 'frontLeftDrackoTwo.png')))
         self.spriteFrontLeft.append(self._media.loadImage(os.path.join('data', 'images', 'character', 'frontLeftDrackoOne.png')))
@@ -53,8 +55,9 @@ class spriteManager(object):
         self.mapScrollX = 0
         self.mapScrollY = 0
 
+
     def update(self, direction):
-        """Moves the sprites."""
+        """Moves the sprites."""    
         if direction == 1:
             if self.mapPosition[0] > 0 and not self._nextNotWalkable(-1, 0):
                 self.mapPosition[0] -= 1
@@ -88,6 +91,21 @@ class spriteManager(object):
             else:
                 self.sprite = self.spriteFrontRight
 
+        
+        # if self.sprite == self.spriteBackRight:
+        #     print("Sprite is BackRight")
+        # elif self.sprite == self.spriteFrontRight:
+        #     print("Sprite is FrontRight")
+        # elif self.sprite == self.spriteBackLeft:
+        #     print("Sprite is BackLeft")
+        # elif self.sprite == self.spriteFrontLeft:
+        #     print("Sprite is FrontLeft")
+        # elif self.sprite == self.spriteBackRightWater:
+        #     print("Sprite is BackRightWater")
+        # elif self.sprite == self.spriteFrontRightWater:
+        #     print("Sprite is FrontRightWater")
+
+
     def _nextNotWalkable(self, row, col):
         """Checks if next tilde is deep water."""
 
@@ -103,3 +121,6 @@ class spriteManager(object):
             return True
         else:
             return False
+
+
+

@@ -9,26 +9,65 @@ from dungeonManager import *
 from spriteManager import *
 
 
+
+
+current_turn = 0  # 0 for player 1 and 1 for player 2
+
+
+class Player():
+    def __init__(self, name, sprite_managers):
+        self.name = name
+        self.played = False
+        self.sprite_managers = sprite_managers if sprite_managers else []  # List of unit sprite managers
+        self.is_active = False # False by default
+    
+    def take_turn(self, action, unit_index=0):
+        if unit_index < len(self.sprite_managers):  # Ensure the unit exists
+            self.played = True
+            if action == 1:  # Move up
+                self.sprite_managers[unit_index].update(1)
+            elif action == 2:  # Move down
+                self.sprite_managers[unit_index].update(2)
+            elif action == 3:  # Move left
+                self.sprite_managers[unit_index].update(3)
+            elif action == 4:  # Move right
+                self.sprite_managers[unit_index].update(4)
+    
+    
+    def set_active(self, active):
+        self.is_active = active
+        
+    def is_turn(self): # checks if it is the player turn
+        return self.is_active
+
+    def get_units_positions(self):
+        return [sprite_manager.mapPosition for sprite_manager in self.sprite_managers] 
+        
+        
+
 class Unit:
     """Class representing a game unit."""
 
-    def __init__(self, dungeon_manager, media):
+    def __init__(self, dungeon_manager, media, initial_position):
         # The base
         self.dungeon_manager = dungeon_manager
         self.media = media
-        self.sprite_manager = spriteManager(dungeon_manager, media, [0, 0]) # we create the character here
+        self.sprite_manager = spriteManager(dungeon_manager, media, initial_position) # we create the character here
+        self.mapPosition = self.sprite_manager.mapPosition
+        self.sprite = self.sprite_manager.sprite
+        self._tmpAnimateSprite = 0  # Add a unique animation index for each unit
 
+        
     def update(self, direction):
-        """Updates the unit's position based on direction."""
         self.sprite_manager.update(direction)
-
+        
 class SecondCharacter(Unit):
     """Class representing the second character."""
 
-    def __init__(self, dungeon_manager, media):
-        super().__init__(dungeon_manager, media)
+    def __init__(self, dungeon_manager, media, initial_position):
+        super().__init__(dungeon_manager, media, initial_position)
         # Initialize the second character's sprite manager
-        self.sprite_manager = spriteManager(dungeon_manager, media, [1, 1]) # we create the character here
+        self.sprite_manager = spriteManager(dungeon_manager, media, initial_position) # we create the character here
 
 class Game:
     """Class representing the main game."""
@@ -133,47 +172,141 @@ class Game:
         self.dungeon_manager.recordNonWalkableTiles(nw_tiles)
         self.dungeon_manager.recordTiles(tilde_file)
         self.dungeon_manager.recordDungeon(dungeon_file)
-
-        
         self.screen.blit(self.background, (0, 0))
-        self.dracko = Unit(self.dungeon_manager, self.media)
-        self.second_character = SecondCharacter(self.dungeon_manager, self.media)
-        self.active_player = self.dracko  # Set the initial active player
+
+        # Create units for each player with unique media instances
+        dracko_units = [Unit(self.dungeon_manager, self.media, [0, 3 * i]) for i in range(4)]
+        second_character_units = [SecondCharacter(self.dungeon_manager, self.media, [10, 3 * i]) for i in range(4)]
+
+
+        # Initialize players with their respective units
+        self.dracko_player = Player("Dracko", dracko_units)
+        self.second_player = Player("Second Player", second_character_units)
+
         pygame.display.update()
+
+
+    def create_unique_media(self):
+        return loadMedia()
+
+
 
     def run_game_loop(self):
         """Runs the main game loop."""
+        # Start with Dracko's turn
+        players = [self.dracko_player, self.second_player]
+        active_player_index = 0
+        players[active_player_index].set_active(True)
+        
+        current_unit_index = 0
+        last_turn_switch_time = 0  # Timestamp for the last turn switch
+        switch_cooldown = 700  # Cooldown in milliseconds for switching turns
+
         while True:
             pygame.event.pump()
             key_input = pygame.key.get_pressed()
 
-            # Switch active player on 'M' key press
-            if key_input[K_m]:
-                if self.active_player == self.dracko:
-                    self.active_player = self.second_character
-                else:
-                    self.active_player = self.dracko
-                pygame.time.delay(200)  # Add a small delay to prevent rapid switching
+            # Get the current time
+            current_time = pygame.time.get_ticks()
 
-            if key_input[K_UP]:
-                self.active_player.update(1)
-            elif key_input[K_DOWN]:
-                self.active_player.update(2)
-            elif key_input[K_LEFT]:
-                self.active_player.update(3)
-            elif key_input[K_RIGHT]:
-                self.active_player.update(4)
+            # Handle unit switching within the active player
+            if key_input[K_TAB]:
+                current_unit_index = (current_unit_index + 1) % len(players[active_player_index].sprite_managers)
+                self.poll_events_with_timeout(20)  # Short delay for unit switching, interruptible
+
+            # Handle turn switching with cooldown
+            if (
+                players[active_player_index].is_turn
+                and players[active_player_index].played
+                and current_time - last_turn_switch_time > switch_cooldown
+            ):
+                players[active_player_index].played = False
+                players[active_player_index].set_active(False)
+                active_player_index = (active_player_index + 1) % len(players)
+                players[active_player_index].set_active(True)
+                last_turn_switch_time = current_time  # Update the timestamp
+
+            # Process movement only for the active player
+            if players[active_player_index].is_turn():
+                if key_input[K_UP]:
+                    players[active_player_index].take_turn(1, current_unit_index)
+                elif key_input[K_DOWN]:
+                    players[active_player_index].take_turn(2, current_unit_index)
+                elif key_input[K_LEFT]:
+                    players[active_player_index].take_turn(3, current_unit_index)
+                elif key_input[K_RIGHT]:
+                    players[active_player_index].take_turn(4, current_unit_index)
+
             if key_input[K_ESCAPE] or pygame.event.peek(QUIT):
                 sys.exit()
 
+            # Update the game screen
             self.screen.blit(self.background, (0, 0))
-            unit_positions = [self.dracko.sprite_manager.mapPosition, self.second_character.sprite_manager.mapPosition]  # Add all relevant unit positions
 
-            self.dungeon_manager.fillDungeon_tiles(unit_positions)  # we don't need to render this each TIME, to be improved later, well possibly we need cause the camera moves 
-            self.dungeon_manager.fillDungeon_sprites(self.dracko.sprite_manager, unit_positions)
-            self.dungeon_manager.fillDungeon_sprites(self.second_character.sprite_manager, unit_positions)
+
+
+            # Update dungeon based on unit positions
+            unit_position = players[active_player_index].sprite_managers[current_unit_index].mapPosition
+            
+            self.dungeon_manager.fillDungeon_tiles(unit_position)
+            # Updates the units
+            for player in players:
+                for unit in player.sprite_managers:
+                    self.dungeon_manager.fillDungeon_sprites(unit.sprite_manager)
+                    # save_sprite_images(unit.sprite_manager, unit)
+            
+            # self.dungeon_manager.fillDungeon_sprites(players[active_player_index].sprite_managers[current_unit_index])        
+
             pygame.display.update()
-            pygame.time.delay(120)
+            self.poll_events_with_timeout(185)  # General delay, interruptible
+
+
+
+    def poll_events_with_timeout(self, timeout):
+        """Polls for events during a timeout and breaks if a key is pressed."""
+        start_time = pygame.time.get_ticks()
+        while pygame.time.get_ticks() - start_time < timeout:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN or event.type == pygame.QUIT:
+                    return  # Stop delay if a key is pressed or quit event is detected
+            pygame.time.wait(1)  # Small wait to avoid busy-waiting
+
+
+
+
+
+
+
+import os
+import pygame
+import datetime
+
+def save_sprite_images(sprite, unit, folder_base="rendered_sprites"):
+    """Saves the current sprite image being rendered to a unique folder with unique names."""
+
+    # Check if sprite is valid and has the necessary map position
+    if sprite and hasattr(sprite, 'mapPosition'):
+        # Create a folder with a timestamp if it doesn't exist
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        folder_path = os.path.join(folder_base, timestamp)
+        os.makedirs(folder_path, exist_ok=True)
+
+        # Get the current sprite surface using its animation frame
+        sprite_surface = sprite.sprite[unit._tmpAnimateSprite]
+
+        # Render the sprite to a temporary surface
+        temp_surface = pygame.Surface((sprite_surface.get_width(), sprite_surface.get_height()), pygame.SRCALPHA)
+        temp_surface.blit(sprite_surface, (0, 0))
+
+        # Generate a unique filename for each sprite using its animation frame
+        file_name = f"sprite_{unit._tmpAnimateSprite}.png"
+        file_path = os.path.join(folder_path, file_name)
+
+        # Save the image to the file
+        pygame.image.save(temp_surface, file_path)
+        print(f"Sprite image saved as '{file_path}'")
+
+
 
 if __name__ == "__main__":
     game = Game()

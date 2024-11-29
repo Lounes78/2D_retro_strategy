@@ -73,12 +73,11 @@ class dungeonManager(object):
         self._centeredItemX = self._windowManager.centerItemX(self._dict[self.dungeon[self._col][self._row]]) + 20
                         
         highlight_positions = set()
-        for unit in unit_positions:
-            row, col = unit
-            for dr in [-2, -1, 0, 1, 2]:
-                for dc in [-2, -1, 0, 1, 2]:
-                    if abs(dr) + abs(dc) <= 2:  # Limit to a radius of 2 tiles
-                        highlight_positions.add((row + dr, col + dc))
+        row, col = unit_positions
+        for dr in [-2, -1, 0, 1, 2]:
+            for dc in [-2, -1, 0, 1, 2]:
+                if abs(dr) + abs(dc) <= 2:  # Limit to a radius of 2 tiles
+                    highlight_positions.add((row + dr, col + dc))
                         
         while True:
             current_position = (self._col, self._row)
@@ -118,9 +117,8 @@ class dungeonManager(object):
 
 
 
-
-
-    def fillDungeon_sprites(self, sprite, unit_positions):
+        
+    def fillDungeon_sprites(self, sprite):
         """Render only the sprite in the dungeon and highlight specific tiles."""
         self._stepX = 0
         self._stepY = 150
@@ -135,10 +133,12 @@ class dungeonManager(object):
             # Sprite rendering
             if sprite and sprite.mapPosition == [self._col, self._row]:
                 self._screen.blit(
-                    sprite.sprite[self._tmpAnimateSprite],
+                    sprite.sprite[sprite._tmpAnimateSprite],
                     (self._centeredItemX + self._stepX, self._stepY - 20 - int(self.elevation[self._col][self._row]) * 20)
                 )
-                self._tmpAnimateSprite = (self._tmpAnimateSprite + 1) % len(sprite.sprite)
+                sprite._tmpAnimateSprite = (sprite._tmpAnimateSprite + 1) % len(sprite.sprite)
+
+                # save_sprite_images(sprite, self._col, self._row, self._stepX, self._stepY, self.elevation, self._screen, self._centeredItemX)
 
             # Move to the next tile in the row
             self._stepX += 19
@@ -158,43 +158,41 @@ class dungeonManager(object):
             # Break if we reach the end of the dungeon
             if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
                 break
+            
+            
 
 
-    # def fillDungeon_sprites(self, sprite):
-    #     """Render only the sprite in the dungeon."""
-    #     self._stepX = 0
-    #     self._stepY = 150
-    #     self._rewinderStepX = 0
-    #     self._rewinderStepY = 150
-    #     self._row = self._rowTmp
-    #     self._col = self._colTmp
-    #     self._patch = 30
-    #     self._centeredItemX = self._windowManager.centerItemX(self._dict[self.dungeon[self._col][self._row]]) + 20
 
-    #     while True:
-    #         # Sprite rendering
-    #         if sprite and sprite.mapPosition == [self._col, self._row]:
-    #             self._screen.blit(
-    #                 sprite.sprite[self._tmpAnimateSprite],
-    #                 (self._centeredItemX + self._stepX, self._stepY - 20 - int(self.elevation[self._col][self._row]) * 20)
-    #             )
-    #             self._tmpAnimateSprite = (self._tmpAnimateSprite + 1) % len(sprite.sprite)
 
-    #         # Move to the next tile in the row
-    #         self._stepX += 19
-    #         self._stepY += 10
-    #         self._row += 1
 
-    #         # Check if the end of the row or screen width is reached
-    #         if self._centeredItemX + self._stepX >= 800 - self._patch or self._row >= len(self.dungeon[self._col]):
-    #             self._patch += 19
-    #             self._row = self._rowTmp
-    #             self._col += 1
-    #             self._rewinderStepX -= 19
-    #             self._stepX = self._rewinderStepX
-    #             self._rewinderStepY += 10
-    #             self._stepY = self._rewinderStepY
 
-             
-    #         if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
-    #             break
+import os
+import datetime
+import pygame
+
+def save_sprite_images(sprite, col, row, step_x, step_y, elevation, screen, centered_item_x, folder_base="rendered_sprites"):
+    """Saves the current sprite image being rendered to a unique folder with unique names."""
+    if sprite and sprite.mapPosition == [col, row]:
+        # Create a folder with a timestamp if it doesn't exist
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        folder_path = os.path.join(folder_base, timestamp)
+        os.makedirs(folder_path, exist_ok=True)
+
+        # Calculate the rendering position
+        render_x = centered_item_x + step_x
+        render_y = step_y - 20 - int(elevation[col][row]) * 20
+
+        # Get the sprite surface
+        sprite_surface = sprite.sprite[sprite._tmpAnimateSprite]
+
+        # Render the sprite to a temporary surface
+        temp_surface = pygame.Surface((sprite_surface.get_width(), sprite_surface.get_height()), pygame.SRCALPHA)
+        temp_surface.blit(sprite_surface, (0, 0))
+
+        # Generate a unique filename for each sprite
+        file_name = f"sprite_{sprite._tmpAnimateSprite}.png"
+        file_path = os.path.join(folder_path, file_name)
+
+        # Save the image to the file
+        pygame.image.save(temp_surface, file_path)
+        print(f"Sprite image saved as '{file_path}'")
