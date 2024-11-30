@@ -118,7 +118,7 @@ class dungeonManager(object):
 
 
         
-    def fillDungeon_sprites(self, sprite):
+    def fillDungeon_sprites(self, sprite, is_active, screen):
         """Render only the sprite in the dungeon and highlight specific tiles."""
         self._stepX = 0
         self._stepY = 150
@@ -138,13 +138,16 @@ class dungeonManager(object):
                 )
                 sprite._tmpAnimateSprite = (sprite._tmpAnimateSprite + 1) % len(sprite.sprite)
 
-                # save_sprite_images(sprite, self._col, self._row, self._stepX, self._stepY, self.elevation, self._screen, self._centeredItemX)
+            # Health bar rendering
+            if is_active and sprite.mapPosition == [self._col, self._row]:
+                sprite.healthBarePosition = [self._centeredItemX + self._stepX - 6, self._stepY - 20 - int(self.elevation[self._col][self._row]) * 20]
+                sprite.draw_health_bar(screen)
+
 
             # Move to the next tile in the row
             self._stepX += 19
             self._stepY += 10
             self._row += 1
-
             # Check if the end of the row or screen width is reached
             if self._centeredItemX + self._stepX >= 800 - self._patch or self._row >= len(self.dungeon[self._col]):
                 self._patch += 19
@@ -162,37 +165,3 @@ class dungeonManager(object):
             
 
 
-
-
-
-
-import os
-import datetime
-import pygame
-
-def save_sprite_images(sprite, col, row, step_x, step_y, elevation, screen, centered_item_x, folder_base="rendered_sprites"):
-    """Saves the current sprite image being rendered to a unique folder with unique names."""
-    if sprite and sprite.mapPosition == [col, row]:
-        # Create a folder with a timestamp if it doesn't exist
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        folder_path = os.path.join(folder_base, timestamp)
-        os.makedirs(folder_path, exist_ok=True)
-
-        # Calculate the rendering position
-        render_x = centered_item_x + step_x
-        render_y = step_y - 20 - int(elevation[col][row]) * 20
-
-        # Get the sprite surface
-        sprite_surface = sprite.sprite[sprite._tmpAnimateSprite]
-
-        # Render the sprite to a temporary surface
-        temp_surface = pygame.Surface((sprite_surface.get_width(), sprite_surface.get_height()), pygame.SRCALPHA)
-        temp_surface.blit(sprite_surface, (0, 0))
-
-        # Generate a unique filename for each sprite
-        file_name = f"sprite_{sprite._tmpAnimateSprite}.png"
-        file_path = os.path.join(folder_path, file_name)
-
-        # Save the image to the file
-        pygame.image.save(temp_surface, file_path)
-        print(f"Sprite image saved as '{file_path}'")

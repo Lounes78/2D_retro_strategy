@@ -45,30 +45,6 @@ class Player():
         
         
 
-class Unit:
-    """Class representing a game unit."""
-
-    def __init__(self, dungeon_manager, media, initial_position):
-        # The base
-        self.dungeon_manager = dungeon_manager
-        self.media = media
-        self.sprite_manager = spriteManager(dungeon_manager, media, initial_position) # we create the character here
-        self.mapPosition = self.sprite_manager.mapPosition
-        self.sprite = self.sprite_manager.sprite
-        self._tmpAnimateSprite = 0  # Add a unique animation index for each unit
-
-        
-    def update(self, direction):
-        self.sprite_manager.update(direction)
-        
-class SecondCharacter(Unit):
-    """Class representing the second character."""
-
-    def __init__(self, dungeon_manager, media, initial_position):
-        super().__init__(dungeon_manager, media, initial_position)
-        # Initialize the second character's sprite manager
-        self.sprite_manager = spriteManager(dungeon_manager, media, initial_position) # we create the character here
-
 class Game:
     """Class representing the main game."""
 
@@ -157,6 +133,10 @@ class Game:
             self.dummy_counter = 0
         return flag
 
+
+
+
+
     def load_game(self):
         """Loads the game after the hello screen."""
         pygame.time.delay(500)
@@ -175,8 +155,8 @@ class Game:
         self.screen.blit(self.background, (0, 0))
 
         # Create units for each player with unique media instances
-        dracko_units = [Unit(self.dungeon_manager, self.media, [0, 3 * i]) for i in range(4)]
-        second_character_units = [SecondCharacter(self.dungeon_manager, self.media, [10, 3 * i]) for i in range(4)]
+        dracko_units = [spriteManager(self.dungeon_manager, self.media, [0, 3 * i]) for i in range(4)]
+        second_character_units = [spriteManager(self.dungeon_manager, self.media, [10, 3 * i]) for i in range(4)]
 
 
         # Initialize players with their respective units
@@ -184,10 +164,6 @@ class Game:
         self.second_player = Player("Second Player", second_character_units)
 
         pygame.display.update()
-
-
-    def create_unique_media(self):
-        return loadMedia()
 
 
 
@@ -216,15 +192,17 @@ class Game:
 
             # Handle turn switching with cooldown
             if (
-                players[active_player_index].is_turn
+                (players[active_player_index].is_turn
                 and players[active_player_index].played
-                and current_time - last_turn_switch_time > switch_cooldown
+                and current_time - last_turn_switch_time > switch_cooldown)
+                or (players[active_player_index].played)
             ):
                 players[active_player_index].played = False
                 players[active_player_index].set_active(False)
                 active_player_index = (active_player_index + 1) % len(players)
                 players[active_player_index].set_active(True)
                 last_turn_switch_time = current_time  # Update the timestamp
+
 
             # Process movement only for the active player
             if players[active_player_index].is_turn():
@@ -243,19 +221,22 @@ class Game:
             # Update the game screen
             self.screen.blit(self.background, (0, 0))
 
-
-
+            active_unit = players[active_player_index].sprite_managers[current_unit_index]
+            unit_position = active_unit.mapPosition 
             # Update dungeon based on unit positions
             unit_position = players[active_player_index].sprite_managers[current_unit_index].mapPosition
             
             self.dungeon_manager.fillDungeon_tiles(unit_position)
             # Updates the units
             for player in players:
-                for unit in player.sprite_managers:
-                    self.dungeon_manager.fillDungeon_sprites(unit.sprite_manager)
-                    # save_sprite_images(unit.sprite_manager, unit)
+                for sprite in player.sprite_managers:
+                    sprite.dungeon.fillDungeon_sprites(sprite, sprite == active_unit, self.screen)
             
-            # self.dungeon_manager.fillDungeon_sprites(players[active_player_index].sprite_managers[current_unit_index])        
+
+
+
+
+
 
             pygame.display.update()
             self.poll_events_with_timeout(185)  # General delay, interruptible
@@ -275,36 +256,34 @@ class Game:
 
 
 
+# import os
+# import pygame
+# import datetime
 
+# def save_sprite_images(sprite, unit, folder_base="rendered_sprites"):
+#     """Saves the current sprite image being rendered to a unique folder with unique names."""
 
-import os
-import pygame
-import datetime
+#     # Check if sprite is valid and has the necessary map position
+#     if sprite and hasattr(sprite, 'mapPosition'):
+#         # Create a folder with a timestamp if it doesn't exist
+#         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+#         folder_path = os.path.join(folder_base, timestamp)
+#         os.makedirs(folder_path, exist_ok=True)
 
-def save_sprite_images(sprite, unit, folder_base="rendered_sprites"):
-    """Saves the current sprite image being rendered to a unique folder with unique names."""
+#         # Get the current sprite surface using its animation frame
+#         sprite_surface = sprite.sprite[unit._tmpAnimateSprite]
 
-    # Check if sprite is valid and has the necessary map position
-    if sprite and hasattr(sprite, 'mapPosition'):
-        # Create a folder with a timestamp if it doesn't exist
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        folder_path = os.path.join(folder_base, timestamp)
-        os.makedirs(folder_path, exist_ok=True)
+#         # Render the sprite to a temporary surface
+#         temp_surface = pygame.Surface((sprite_surface.get_width(), sprite_surface.get_height()), pygame.SRCALPHA)
+#         temp_surface.blit(sprite_surface, (0, 0))
 
-        # Get the current sprite surface using its animation frame
-        sprite_surface = sprite.sprite[unit._tmpAnimateSprite]
+#         # Generate a unique filename for each sprite using its animation frame
+#         file_name = f"sprite_{unit._tmpAnimateSprite}.png"
+#         file_path = os.path.join(folder_path, file_name)
 
-        # Render the sprite to a temporary surface
-        temp_surface = pygame.Surface((sprite_surface.get_width(), sprite_surface.get_height()), pygame.SRCALPHA)
-        temp_surface.blit(sprite_surface, (0, 0))
-
-        # Generate a unique filename for each sprite using its animation frame
-        file_name = f"sprite_{unit._tmpAnimateSprite}.png"
-        file_path = os.path.join(folder_path, file_name)
-
-        # Save the image to the file
-        pygame.image.save(temp_surface, file_path)
-        print(f"Sprite image saved as '{file_path}'")
+#         # Save the image to the file
+#         pygame.image.save(temp_surface, file_path)
+#         print(f"Sprite image saved as '{file_path}'")
 
 
 

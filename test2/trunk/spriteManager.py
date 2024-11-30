@@ -2,14 +2,16 @@ import os, sys, random
 import pygame
 from pygame.locals import *
 
-
 class spriteManager(object):
 
     def __init__(self, dungeon, media, mapPosition):
-
+        self.max_health = 100
+        self.health = 100
+        self.healthBarePosition = [30, 20]
         self.dungeon = dungeon
         self._media = media
         self.mapPosition = mapPosition # position of the sprite 
+        
         self._tmpAnimateSprite = 0
         self.spriteFrontLeft = []
         self.spriteFrontLeft.append(self._media.loadImage(os.path.join('data', 'images', 'character', 'frontLeftDrackoTwo.png')))
@@ -54,8 +56,7 @@ class spriteManager(object):
         self.sprite = self.spriteFrontLeft
         self.mapScrollX = 0
         self.mapScrollY = 0
-
-
+    
     def update(self, direction):
         """Moves the sprites."""    
         if direction == 1:
@@ -91,19 +92,24 @@ class spriteManager(object):
             else:
                 self.sprite = self.spriteFrontRight
 
-        
-        # if self.sprite == self.spriteBackRight:
-        #     print("Sprite is BackRight")
-        # elif self.sprite == self.spriteFrontRight:
-        #     print("Sprite is FrontRight")
-        # elif self.sprite == self.spriteBackLeft:
-        #     print("Sprite is BackLeft")
-        # elif self.sprite == self.spriteFrontLeft:
-        #     print("Sprite is FrontLeft")
-        # elif self.sprite == self.spriteBackRightWater:
-        #     print("Sprite is BackRightWater")
-        # elif self.sprite == self.spriteFrontRightWater:
-        #     print("Sprite is FrontRightWater")
+    def draw_health_bar(self, screen):
+        bar_width = 50
+        bar_height = 5
+        bar_x = self.healthBarePosition[0]
+        bar_y = self.healthBarePosition[1] - 10  # Adjust to position it above the sprite
+        fill_width = int((self.health / self.max_health) * bar_width)
+
+        # Draw the bar
+        pygame.draw.rect(screen, (255, 0, 0), (bar_x, bar_y, bar_width, bar_height))  # Red for max health
+        pygame.draw.rect(screen, (0, 255, 0), (bar_x, bar_y, fill_width, bar_height))  # Green for current health
+    
+    def take_damage(self, damage):
+        self.health = max(0, self.health - damage)
+
+    def is_alive(self):
+        return self.health > 0
+
+ 
 
 
     def _nextNotWalkable(self, row, col):
