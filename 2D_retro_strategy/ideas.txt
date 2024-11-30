@@ -1,1 +1,0 @@
-each player 1VS1 will have it s own view of the game
