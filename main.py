@@ -50,6 +50,8 @@ class Game:
 
     def __init__(self):
         pygame.init()
+        self.target_position = []
+        self.menu_open = False
         self.screen = pygame.display.set_mode((800, 600))
         self.media = loadMedia()
         self.window_manager = windowManager(self.screen)
@@ -135,8 +137,6 @@ class Game:
 
 
 
-
-
     def load_game(self):
         """Loads the game after the hello screen."""
         pygame.time.delay(500)
@@ -163,6 +163,8 @@ class Game:
         self.dracko_player = Player("Dracko", dracko_units)
         self.second_player = Player("Second Player", second_character_units)
 
+        # highlighted target position
+        self.target_position_sprite = spriteManager(self.dungeon_manager, self.media, [0, 0])
         pygame.display.update()
 
 
@@ -173,14 +175,15 @@ class Game:
         players = [self.dracko_player, self.second_player]
         active_player_index = 0
         players[active_player_index].set_active(True)
+
         
         current_unit_index = 0
         last_turn_switch_time = 0  # Timestamp for the last turn switch
         switch_cooldown = 700  # Cooldown in milliseconds for switching turns
 
         while True:
-            pygame.event.pump()
-            key_input = pygame.key.get_pressed()
+            pygame.event.pump() # updating the events queue from the os
+            key_input = pygame.key.get_pressed() 
 
             # Get the current time
             current_time = pygame.time.get_ticks()
@@ -204,39 +207,75 @@ class Game:
                 last_turn_switch_time = current_time  # Update the timestamp
 
 
-            # Process movement only for the active player
-            if players[active_player_index].is_turn():
-                if key_input[K_UP]:
-                    players[active_player_index].take_turn(1, current_unit_index)
-                elif key_input[K_DOWN]:
-                    players[active_player_index].take_turn(2, current_unit_index)
-                elif key_input[K_LEFT]:
-                    players[active_player_index].take_turn(3, current_unit_index)
-                elif key_input[K_RIGHT]:
-                    players[active_player_index].take_turn(4, current_unit_index)
+            active_unit = players[active_player_index].sprite_managers[current_unit_index]
+            unit_position = active_unit.mapPosition 
+            unit_position = players[active_player_index].sprite_managers[current_unit_index].mapPosition
 
-            if key_input[K_ESCAPE] or pygame.event.peek(QUIT):
-                sys.exit()
+
+            # Process movement only for the active player
+            self.menu_open = active_unit.menu_open
+            if not self.menu_open:
+                if players[active_player_index].is_turn():
+                    if key_input[K_UP]:
+                        players[active_player_index].take_turn(1, current_unit_index)
+                    elif key_input[K_DOWN]:
+                        players[active_player_index].take_turn(2, current_unit_index)
+                    elif key_input[K_LEFT]:
+                        players[active_player_index].take_turn(3, current_unit_index)
+                    elif key_input[K_RIGHT]:
+                        players[active_player_index].take_turn(4, current_unit_index)
+                self.target_position_sprite.mapPosition = [active_unit.mapPosition[0], active_unit.mapPosition[1]]
 
             # Update the game screen
             self.screen.blit(self.background, (0, 0))
 
-            active_unit = players[active_player_index].sprite_managers[current_unit_index]
-            unit_position = active_unit.mapPosition 
-            # Update dungeon based on unit positions
-            unit_position = players[active_player_index].sprite_managers[current_unit_index].mapPosition
+                
+            if active_unit.attack_selected:
+                if key_input[K_UP]:
+                    self.target_position_sprite.update(1)
+                elif key_input[K_DOWN]:
+                    self.target_position_sprite.update(2)
+                elif key_input[K_LEFT]:
+                    self.target_position_sprite.update(3)
+                elif key_input[K_RIGHT]:
+                    self.target_position_sprite.update(4)
+                unit_position = self.target_position_sprite.mapPosition
+
+
             
-            self.dungeon_manager.fillDungeon_tiles(unit_position)
+            attack_position = active_unit.handle_attacks(key_input, self.screen, self.target_position_sprite.mapPosition)
+            
+            # find the ennemy and attack it
+            if attack_position != None:
+                for enemy_sprite in players[not(active_player_index)].sprite_managers:
+                    if enemy_sprite.mapPosition == attack_position:
+                        damage = 30 # par exemple  
+                        active_unit.perform_attack(damage, enemy_sprite)
+                        
+                        if enemy_sprite.is_defeated():
+                            players[1 - active_player_index].sprite_managers.remove(enemy_sprite)
+                                    
+                        #change the player once attacked
+                        players[active_player_index].played = False  
+                        players[active_player_index].set_active(False)
+                        active_player_index = (active_player_index + 1) % len(players)  
+                        players[active_player_index].set_active(True)
+                        last_turn_switch_time = current_time 
+                        
+                        
+                    
+
+            self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected)
             # Updates the units
             for player in players:
                 for sprite in player.sprite_managers:
                     sprite.dungeon.fillDungeon_sprites(sprite, sprite == active_unit, self.screen)
             
+            
+            
 
-
-
-
-
+            if key_input[K_ESCAPE] or pygame.event.peek(QUIT):
+                sys.exit()
 
             pygame.display.update()
             self.poll_events_with_timeout(185)  # General delay, interruptible
@@ -252,38 +291,6 @@ class Game:
                     return  # Stop delay if a key is pressed or quit event is detected
             pygame.time.wait(1)  # Small wait to avoid busy-waiting
 
-
-
-
-
-# import os
-# import pygame
-# import datetime
-
-# def save_sprite_images(sprite, unit, folder_base="rendered_sprites"):
-#     """Saves the current sprite image being rendered to a unique folder with unique names."""
-
-#     # Check if sprite is valid and has the necessary map position
-#     if sprite and hasattr(sprite, 'mapPosition'):
-#         # Create a folder with a timestamp if it doesn't exist
-#         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-#         folder_path = os.path.join(folder_base, timestamp)
-#         os.makedirs(folder_path, exist_ok=True)
-
-#         # Get the current sprite surface using its animation frame
-#         sprite_surface = sprite.sprite[unit._tmpAnimateSprite]
-
-#         # Render the sprite to a temporary surface
-#         temp_surface = pygame.Surface((sprite_surface.get_width(), sprite_surface.get_height()), pygame.SRCALPHA)
-#         temp_surface.blit(sprite_surface, (0, 0))
-
-#         # Generate a unique filename for each sprite using its animation frame
-#         file_name = f"sprite_{unit._tmpAnimateSprite}.png"
-#         file_path = os.path.join(folder_path, file_name)
-
-#         # Save the image to the file
-#         pygame.image.save(temp_surface, file_path)
-#         print(f"Sprite image saved as '{file_path}'")
 
 
 

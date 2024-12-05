@@ -5,9 +5,17 @@ from pygame.locals import *
 class spriteManager(object):
 
     def __init__(self, dungeon, media, mapPosition):
+        self.menu_open = False
+        self.attacks = ["Fireball", "Ice Spike", "Thunder Strike"]
+        self.selected_attack = 0
+        self.attack_selected = False
+        self.cursor_target_position = []
+        self.target_position = None
+        
         self.max_health = 100
         self.health = 100
         self.healthBarePosition = [30, 20]
+        
         self.dungeon = dungeon
         self._media = media
         self.mapPosition = mapPosition # position of the sprite 
@@ -96,7 +104,7 @@ class spriteManager(object):
         bar_width = 50
         bar_height = 5
         bar_x = self.healthBarePosition[0]
-        bar_y = self.healthBarePosition[1] - 10  # Adjust to position it above the sprite
+        bar_y = self.healthBarePosition[1] - 10
         fill_width = int((self.health / self.max_health) * bar_width)
 
         # Draw the bar
@@ -109,7 +117,54 @@ class spriteManager(object):
     def is_alive(self):
         return self.health > 0
 
- 
+
+    def is_defeated(self):
+        return not(self.is_alive())
+
+
+
+    def handle_attacks(self, key_input, screen, attack_position):
+        if key_input[K_m]:
+            self.menu_open = not self.menu_open
+        elif self.menu_open: # choosing the attack
+            self.draw_menu(screen)
+            if key_input[K_UP] and self.attack_selected == False:
+                self.selected_attack = (self.selected_attack - 1)%len(self.attacks)         
+            if key_input[K_DOWN] and self.attack_selected == False:
+                self.selected_attack = (self.selected_attack + 1)%len(self.attacks)
+            elif key_input[K_RETURN] and self.attack_selected == False:
+                self.attack_selected = True
+            elif key_input[K_RETURN] and self.attack_selected == True: # ATTACK
+                self.attack_selected = False
+                self.menu_open = False
+                return attack_position
+                # attack_position = 
+                # Perform the attack
+                # self.perform_attack(ennemy_sprite)
+
+
+
+    def draw_menu(self, screen):
+        if not self.menu_open:
+            return 
+        # Menu background
+        menu_rect = pygame.Rect(50, 50, 200, 150)
+        pygame.draw.rect(screen, (0, 0, 0), menu_rect)
+        pygame.draw.rect(screen, (255, 255, 255), menu_rect, 2)
+    
+        # Menu options
+        font = pygame.font.Font(None, 36)
+        for i, attack in enumerate(self.attacks):
+            color = (255, 255, 255) if self.selected_attack == i else (150, 150, 150)
+            text_surface = font.render(attack, True, color)
+            screen.blit(text_surface, (menu_rect.x + 10, menu_rect.y + 10 + i*30))
+
+
+
+    def perform_attack(self, damage, ennemy_sprite):
+        print(f"Launching {self.attacks[self.selected_attack]} at {ennemy_sprite.mapPosition}")
+        ennemy_sprite.take_damage(damage)
+
 
 
     def _nextNotWalkable(self, row, col):
