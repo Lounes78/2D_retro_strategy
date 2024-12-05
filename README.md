@@ -10,3 +10,4 @@
 
 --- Details about the attacks etc
 
+--- Update current_unit_index when a unit gets eleminated
