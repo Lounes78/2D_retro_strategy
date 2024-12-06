@@ -75,8 +75,8 @@ class dungeonManager(object):
         highlight_positions = set()
         row, col = unit_positions
         if not target_position:
-            for dr in [-2, -1, 0, 1, 2]:
-                for dc in [-2, -1, 0, 1, 2]:
+            for dr in [-2, -1, 0]:
+                for dc in [-2, -1, 0]:
                     if abs(dr) + abs(dc) <= 2:  # Limit to a radius of 2 tiles
                         highlight_positions.add((row + dr, col + dc))
         else:

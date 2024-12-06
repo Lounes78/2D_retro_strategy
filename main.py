@@ -175,6 +175,7 @@ class Game:
         players = [self.dracko_player, self.second_player]
         active_player_index = 0
         players[active_player_index].set_active(True)
+        
 
         
         current_unit_index = 0
@@ -191,6 +192,7 @@ class Game:
             # Handle unit switching within the active player
             if key_input[K_TAB]:
                 current_unit_index = (current_unit_index + 1) % len(players[active_player_index].sprite_managers)
+                
                 self.poll_events_with_timeout(20)  # Short delay for unit switching, interruptible
 
             # Handle turn switching with cooldown
@@ -206,10 +208,11 @@ class Game:
                 players[active_player_index].set_active(True)
                 last_turn_switch_time = current_time  # Update the timestamp
 
-
+            if current_unit_index >=len(players[active_player_index].sprite_managers):
+                current_unit_index = 0
             active_unit = players[active_player_index].sprite_managers[current_unit_index]
             unit_position = active_unit.mapPosition 
-            unit_position = players[active_player_index].sprite_managers[current_unit_index].mapPosition
+            #unit_position = players[active_player_index].sprite_managers[current_unit_index].mapPosition
 
 
             # Process movement only for the active player
@@ -254,6 +257,11 @@ class Game:
                         
                         if enemy_sprite.is_defeated():
                             players[1 - active_player_index].sprite_managers.remove(enemy_sprite)
+                            #if current_unit_index >= len(players[active_player_index].sprite_managers):
+                                #current_unit_index = 0
+                            #if len(players[1 - active_player_index].sprite_managers) == 0:
+                                #print(f"{players[active_player_index].name} wins!")
+                                #sys.exit()
                                     
                         #change the player once attacked
                         players[active_player_index].played = False  
