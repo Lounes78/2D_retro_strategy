@@ -11,6 +11,7 @@ from spriteManager import *
 
 
 
+
 current_turn = 0  # 0 for player 1 and 1 for player 2
 
 
@@ -54,6 +55,8 @@ class Game:
         self.menu_open = False
         self.screen = pygame.display.set_mode((800, 600))
         self.media = loadMedia()
+        
+
         self.window_manager = windowManager(self.screen)
         self.background = self.media.loadImage(os.path.join('data', 'images', 'background', 'firstDungeon.png'))
         self.logo = [
@@ -142,7 +145,7 @@ class Game:
         pygame.time.delay(500)
         self.sound.music.stop()
         self.sound = self.media.loadSound(os.path.join('data', 'music', 'bjorn__lynne-_the_long_journey_home.mid'))
-        self.sound.music.play(-1)
+        #self.sound.music.play(-1)
 
         tilde_file = self.media.loadReadFile(os.path.join('data', 'maps', 'tiles.txt'))
         dungeon_file = self.media.loadReadFile(os.path.join('data', 'maps', 'firstDungeon.txt'))
@@ -175,8 +178,11 @@ class Game:
         players = [self.dracko_player, self.second_player]
         active_player_index = 0
         players[active_player_index].set_active(True)
-        
 
+
+
+
+        #attack_animation = AttackAnimation(self.screen, self.media)
         
         current_unit_index = 0
         last_turn_switch_time = 0  # Timestamp for the last turn switch
@@ -184,7 +190,7 @@ class Game:
 
         while True:
             pygame.event.pump() # updating the events queue from the os
-            key_input = pygame.key.get_pressed() 
+            key_input = pygame.key.get_pressed()
 
             # Get the current time
             current_time = pygame.time.get_ticks()
@@ -252,7 +258,15 @@ class Game:
             if attack_position != None:
                 for enemy_sprite in players[not(active_player_index)].sprite_managers:
                     if enemy_sprite.mapPosition == attack_position:
+                        
                         damage = 30 # par exemple  
+                        #attack_animation.play(
+                         #   attack_type=active_unit.attacks[active_unit.selected_attack],
+                         #   start_position=active_unit.mapPosition,
+                           # target_position=attack_position,
+                           # tile_width=50,  # Adapter à la taille de tes tuiles
+                          #  tile_height=50
+                        #)   
                         active_unit.perform_attack(damage, enemy_sprite)
                         
                         if enemy_sprite.is_defeated():
@@ -271,8 +285,8 @@ class Game:
                         last_turn_switch_time = current_time 
                         
                         
-                    
-
+            print(unit_position)
+            print(active_unit.attack_selected) # true or false selon si on a activé un attaque,true quand mon bouge la highlighted tile
             self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected)
             # Updates the units
             for player in players:
@@ -284,8 +298,23 @@ class Game:
 
             if key_input[K_ESCAPE] or pygame.event.peek(QUIT):
                 sys.exit()
+            #cloud_positions = [[3, 4]  # Example: positions of clouds
+            cloud_position = [0, 1]  # Logical position of the cloud
+            cloud_image = self.media.loadImage(os.path.join('data', 'images', 'character', 'back-left-dracko.png'))
+            #cloud_image_resized = pygame.transform.scale(cloud_image, (300, 100))  # Resize to tile size
+
+            # Draw the cloud
+
+            self.dungeon_manager.draw_cloud(self.screen, cloud_position, cloud_image)
+
+            # Cloud image
+
+            # Call the method to draw the cloud
+            #self.dungeon_manager.draw_cloud(self.screen, cloud_position, cloud_image)
 
             pygame.display.update()
+            #self.dungeon_manager.fillDungeon_effects(cloud_position, cloud_image)
+
             self.poll_events_with_timeout(185)  # General delay, interruptible
 
 

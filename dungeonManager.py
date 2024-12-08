@@ -82,7 +82,7 @@ class dungeonManager(object):
         else:
             highlight_positions.add((row, col))
         
-        while True:
+        while True:# boucle pour l'affiche en iso
             current_position = (self._col, self._row)
 
             # Tile highlight
@@ -134,6 +134,7 @@ class dungeonManager(object):
 
         while True:
             # Sprite rendering
+
             if sprite and sprite.mapPosition == [self._col, self._row]:
                 self._screen.blit(
                     sprite.sprite[sprite._tmpAnimateSprite],
@@ -164,7 +165,60 @@ class dungeonManager(object):
             # Break if we reach the end of the dungeon
             if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
                 break
-            
-            
+
+    def draw_cloud(self, screen, cloud_position, cloud_image):
+        """
+        Draw a cloud effect at the specified isometric position.
+        you can draw any image with the specified grid it will automatically render the image in the right position
+        """
+        row, col = cloud_position  # Logical grid position of the cloud
+
+        # Calculate isometric screen coordinates using health bar logic
+        cloud_x = self._windowManager.centerItemX(self._dict[self.dungeon[row][col]]) + 20  # Base x position
+        cloud_x += (col - row) * 19  # Adjust for isometric alignment
+        cloud_y = 150 + (col + row) * 10 - int(self.elevation[row][col]) * 20  # Base y position with elevation
+        cloud_y -= 80  # Additional offset to place the cloud higher than the sprite
+
+        # Draw the cloud image
+        screen.blit(cloud_image, (cloud_x, cloud_y))
+
+    def fillDungeon_effects(self, effect_positions, effect_image):
+        """Render visual effects (e.g., clouds) at specific positions on the dungeon"""
+
+        self._stepX = 0
+        self._stepY = 150
+        self._rewinderStepX = 0
+        self._rewinderStepY = 150
+        self._row = self._rowTmp
+        self._col = self._colTmp
+        self._patch = 30
+        self._centeredItemX = self._windowManager.centerItemX(self._dict[self.dungeon[self._col][self._row]]) + 20
+
+        while True:
+            # Render the effect if the position matches
+            if [self._col, self._row] in effect_positions:
+                effect_x = self._centeredItemX + self._stepX
+                effect_y = self._stepY - 50 - int(self.elevation[self._col][self._row]) * 20
+                self._screen.blit(effect_image, (effect_x, effect_y))
+
+            # Move to the next tile in the row
+            self._stepX += 19
+            self._stepY += 10
+            self._row += 1
+
+            # Check if the end of the row or screen width is reached
+            if self._centeredItemX + self._stepX >= 800 - self._patch or self._row >= len(self.dungeon[self._col]):
+                self._patch += 19
+                self._row = self._rowTmp
+                self._col += 1
+                self._rewinderStepX -= 19
+                self._stepX = self._rewinderStepX
+                self._rewinderStepY += 10
+                self._stepY = self._rewinderStepY
+
+            # Break if we reach the end of the dungeon
+            if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
+                break
+
 
 
