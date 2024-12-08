@@ -2,6 +2,9 @@ import os, sys, random
 import pygame
 from pygame.locals import *
 
+from ExplostionManager import Explosion
+explosion_group = pygame.sprite.Group()
+
 class spriteManager(object):
 
     def __init__(self, dungeon, media, mapPosition):
@@ -161,9 +164,53 @@ class spriteManager(object):
 
 
 
-    def perform_attack(self, damage, ennemy_sprite):
+    def perform_attack(self, damage, ennemy_sprite, screen):
         print(f"Launching {self.attacks[self.selected_attack]} at {ennemy_sprite.mapPosition}")
         ennemy_sprite.take_damage(damage)
+
+        stepX = 0
+        stepY = 150
+        rewinderStepX = 0
+        rewinderStepY = 150
+        patch = 30
+
+        target_row, target_col = ennemy_sprite.mapPosition
+
+        centeredItemX = 400 
+
+        row, col = ennemy_sprite.dungeon._rowTmp, ennemy_sprite.dungeon._colTmp
+
+        # Traverse the dungeon to compute stepX and stepY for the target position
+        while True:
+            if [col, row] == [target_row, target_col]:
+                break
+
+            # Move to the next tile in the row
+            stepX += 19
+            stepY += 10
+            row += 1
+
+            # Check if the end of the row or screen width is reached
+            if centeredItemX + stepX >= 800 - patch or row >= len(ennemy_sprite.dungeon.dungeon[col]):
+                patch += 19
+                row = ennemy_sprite.dungeon._rowTmp
+                col += 1
+                rewinderStepX -= 19
+                stepX = rewinderStepX
+                rewinderStepY += 10
+                stepY = rewinderStepY
+
+            if centeredItemX + stepX <= 0 or col >= len(ennemy_sprite.dungeon.dungeon):
+                raise ValueError("Target position is out of bounds in the dungeon!")
+
+        x = centeredItemX + stepX + 18
+        y = stepY - 50 - int(ennemy_sprite.dungeon.elevation[target_row][target_col]) * 20
+
+        explosion_group.add(Explosion(x, y))
+        explosion_group.draw(screen)
+        explosion_group.update()
+        # remove the explosion after being displayed
+        explosion_group.empty()
 
 
 

@@ -7,3 +7,4 @@ W water.png
 D deepWater.png
 B tileBase.png
 I bigIce.png
+C cloud.png

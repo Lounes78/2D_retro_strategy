@@ -23,6 +23,7 @@ class dungeonManager(object):
             if len(line.split()) == 2:
                 # G grass.png
                 self._dict[line.split()[0]] = self._media.loadImage(os.path.join('data', 'images', 'terrain', line.split()[1]))
+                # print(self._dict)
             else:
                 print ("Theres an error in the tile file.")
                 sys.exit()
@@ -87,7 +88,11 @@ class dungeonManager(object):
 
             # Tile highlight
             if current_position in highlight_positions:
-                self._screen.blit(self._dict["R"], (self._centeredItemX + self._stepX, self._stepY - int(self.elevation[self._col][self._row]) * 20))
+                if not target_position:
+                    self._screen.blit(self._dict["R"], (self._centeredItemX + self._stepX, self._stepY - int(self.elevation[self._col][self._row]) * 20))
+                else:
+                    self._screen.blit(self._dict["R"], (self._centeredItemX + self._stepX, self._stepY - int(self.elevation[self._col][self._row]) * 20))
+                    self._screen.blit(self._dict["C"], (self._centeredItemX + self._stepX + 10, self._stepY - int(self.elevation[self._col][self._row]) * 30))
             # Tile rendering
             elif self.dungeon[self._col][self._row] == 'M':
                 if int(self.elevation[self._col][self._row]) > 1:
@@ -133,6 +138,7 @@ class dungeonManager(object):
         self._centeredItemX = self._windowManager.centerItemX(self._dict[self.dungeon[self._col][self._row]]) + 20
 
         while True:
+            # print(self._centeredItemX)
             # Sprite rendering
             if sprite and sprite.mapPosition == [self._col, self._row]:
                 self._screen.blit(
@@ -143,6 +149,7 @@ class dungeonManager(object):
 
             # Health bar rendering
             if is_active and sprite.mapPosition == [self._col, self._row]:
+                # print(self._centeredItemX + self._stepX - 6, self._stepY - 20 - int(self.elevation[self._col][self._row]) * 20)
                 sprite.healthBarePosition = [self._centeredItemX + self._stepX - 6, self._stepY - 20 - int(self.elevation[self._col][self._row]) * 20]
                 sprite.draw_health_bar(screen)
 
@@ -165,6 +172,4 @@ class dungeonManager(object):
             if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
                 break
             
-            
-
-
+          

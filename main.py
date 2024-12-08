@@ -206,7 +206,6 @@ class Game:
                 players[active_player_index].set_active(True)
                 last_turn_switch_time = current_time  # Update the timestamp
 
-
             active_unit = players[active_player_index].sprite_managers[current_unit_index]
             unit_position = active_unit.mapPosition 
             unit_position = players[active_player_index].sprite_managers[current_unit_index].mapPosition
@@ -243,25 +242,6 @@ class Game:
 
 
             
-            attack_position = active_unit.handle_attacks(key_input, self.screen, self.target_position_sprite.mapPosition)
-            
-            # find the ennemy and attack it
-            if attack_position != None:
-                for enemy_sprite in players[not(active_player_index)].sprite_managers:
-                    if enemy_sprite.mapPosition == attack_position:
-                        damage = 30 # par exemple  
-                        active_unit.perform_attack(damage, enemy_sprite)
-                        
-                        if enemy_sprite.is_defeated():
-                            players[1 - active_player_index].sprite_managers.remove(enemy_sprite)
-                                    
-                        #change the player once attacked
-                        players[active_player_index].played = False  
-                        players[active_player_index].set_active(False)
-                        active_player_index = (active_player_index + 1) % len(players)  
-                        players[active_player_index].set_active(True)
-                        last_turn_switch_time = current_time 
-                        
                         
                     
 
@@ -273,6 +253,25 @@ class Game:
             
             
             
+            attack_position = active_unit.handle_attacks(key_input, self.screen, self.target_position_sprite.mapPosition)
+            
+            # find the ennemy and attack it
+            if attack_position != None:
+                for enemy_sprite in players[not(active_player_index)].sprite_managers:
+                    if enemy_sprite.mapPosition == attack_position:
+                        damage = 30 # par exemple  
+                        active_unit.perform_attack(damage, enemy_sprite, self.screen)
+                        
+                        if enemy_sprite.is_defeated():
+                            players[1 - active_player_index].sprite_managers.remove(enemy_sprite)
+                                    
+                        #change the player once attacked
+                        players[active_player_index].played = False  
+                        players[active_player_index].set_active(False)
+                        active_player_index = (active_player_index + 1) % len(players)  
+                        players[active_player_index].set_active(True)
+                        last_turn_switch_time = current_time 
+                        
 
             if key_input[K_ESCAPE] or pygame.event.peek(QUIT):
                 sys.exit()
