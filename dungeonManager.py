@@ -1,6 +1,7 @@
 import os, sys, random
 import pygame
 from pygame.locals import *
+#from attackAnimation import *
 
 class dungeonManager(object):
     """Manages the dungeon drawing."""
@@ -15,6 +16,7 @@ class dungeonManager(object):
         self._rowTmp = 0
         self._colTmp = 0
         self._tmpAnimateSprite = 0
+        self.fireball_group = pygame.sprite.Group()
 
     def recordTiles(self, tileFile): # create a dictionary of terrain tiles from the tiles.txt file
         """Seeks usable tiles."""
@@ -60,7 +62,7 @@ class dungeonManager(object):
 
 
 
-    def fillDungeon_tiles(self, unit_positions, target_position = False):
+    def fillDungeon_tiles(self, unit_positions, target_position = False,selected_attack=None):
         """Render only the tiles of the dungeon."""
         self._stepX = 0 # en pixel
         self._stepY = 150
@@ -87,7 +89,20 @@ class dungeonManager(object):
 
             # Tile highlight
             if current_position in highlight_positions:
-                self._screen.blit(self._dict["R"], (self._centeredItemX + self._stepX, self._stepY - int(self.elevation[self._col][self._row]) * 20))
+                if not target_position:
+                    self._screen.blit(self._dict["R"], (
+                    self._centeredItemX + self._stepX, self._stepY - int(self.elevation[self._col][self._row]) * 20))
+                else:
+                    self._screen.blit(self._dict["R"], (
+                    self._centeredItemX + self._stepX, self._stepY - int(self.elevation[self._col][self._row]) * 20))
+                    if selected_attack=="Thunder Strike":
+                        # Example usage in your game loop
+                        image = self._media.loadImage(os.path.join('data', 'images', 'effects', 'thunder.png'))
+                        #self.play(selected_attack, current_position, image)
+
+                        self._screen.blit(self._dict["C"], (self._centeredItemX + self._stepX + 10,
+                                                        self._stepY-40 - int(self.elevation[self._col][self._row]) * 30))
+
             # Tile rendering
             elif self.dungeon[self._col][self._row] == 'M':
                 if int(self.elevation[self._col][self._row]) > 1:
@@ -166,59 +181,163 @@ class dungeonManager(object):
             if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
                 break
 
-    def draw_cloud(self, screen, cloud_position, cloud_image):
+    def get_isometric_position(self, row, col):
         """
-        Draw a cloud effect at the specified isometric position.
-        you can draw any image with the specified grid it will automatically render the image in the right position
+        Converts grid (row, col) to isometric screen coordinates.
         """
-        row, col = cloud_position  # Logical grid position of the cloud
+        base_tile = self._dict[self.dungeon[row][col]]
+        centered_x = self._windowManager.centerItemX(base_tile) + 20
+        x = centered_x + (col - row) * 19.5  # Use float for better alignment
+        y = 150 + (row + col) * 10.5 - int(self.elevation[row][col]) * 20
+        return x, y
 
-        # Calculate isometric screen coordinates using health bar logic
-        cloud_x = self._windowManager.centerItemX(self._dict[self.dungeon[row][col]]) + 20  # Base x position
-        cloud_x += (col - row) * 19  # Adjust for isometric alignment
-        cloud_y = 150 + (col + row) * 10 - int(self.elevation[row][col]) * 20  # Base y position with elevation
-        cloud_y -= 80  # Additional offset to place the cloud higher than the sprite
+    def play2(self, attack_type, target_position,start_position=None):
+        """
+        Plays an attack animation on the specified tile.
+        :param attack_type: The type of attack (e.g., "Thunder Strike").
+        :param target_position: The logical grid position (row, col) of the target tile.
+        """
+        if attack_type == "Thunder Strike":
+            # Load the effect image
+            image = self._media.loadImage(os.path.join('data', 'images', 'effects', 'thunder.png'))
 
-        # Draw the cloud image
-        screen.blit(cloud_image, (cloud_x, cloud_y))
+            # Extract the target position
+            row, col = target_position
 
-    def fillDungeon_effects(self, effect_positions, effect_image):
-        """Render visual effects (e.g., clouds) at specific positions on the dungeon"""
+            # Calculate isometric screen coordinates
+            base_tile = self._dict[self.dungeon[row][col]]
+            centered_x = self._windowManager.centerItemX(base_tile) + 20
+            target_x = centered_x + (col - row) * 19
+            target_y = 150 + (row + col) * 10 - int(self.elevation[row][col]) * 20 - 50  # Offset for lightning effect
 
-        self._stepX = 0
-        self._stepY = 150
-        self._rewinderStepX = 0
-        self._rewinderStepY = 150
-        self._row = self._rowTmp
-        self._col = self._colTmp
-        self._patch = 30
-        self._centeredItemX = self._windowManager.centerItemX(self._dict[self.dungeon[self._col][self._row]]) + 20
+            # Create a transparent surface for effects (same size as the main screen)
+            effects_surface = pygame.Surface(self._screen.get_size(), pygame.SRCALPHA)
 
-        while True:
-            # Render the effect if the position matches
-            if [self._col, self._row] in effect_positions:
-                effect_x = self._centeredItemX + self._stepX
-                effect_y = self._stepY - 50 - int(self.elevation[self._col][self._row]) * 20
-                self._screen.blit(effect_image, (effect_x, effect_y))
+            # Draw the effect on the transparent surface
+            effects_surface.blit(image, (target_x, target_y))
 
-            # Move to the next tile in the row
-            self._stepX += 19
-            self._stepY += 10
-            self._row += 1
+            # Ensure the effect surface is drawn last
+            self._screen.blit(effects_surface, (0, 0))
 
-            # Check if the end of the row or screen width is reached
-            if self._centeredItemX + self._stepX >= 800 - self._patch or self._row >= len(self.dungeon[self._col]):
-                self._patch += 19
-                self._row = self._rowTmp
-                self._col += 1
-                self._rewinderStepX -= 19
-                self._stepX = self._rewinderStepX
-                self._rewinderStepY += 10
-                self._stepY = self._rewinderStepY
+        elif attack_type == "Fireball" and start_position:
+            # Ensure start position is provided for Fireball
+            start_row, start_col = start_position
+            start_tile = self._dict[self.dungeon[start_row][start_col]]
+            start_centered_x = self._windowManager.centerItemX(start_tile) + 20
+            start_x = start_centered_x + (start_col - start_row) * 19
+            start_y = 150 + (start_row + start_col) * 10 - int(self.elevation[start_row][start_col]) * 20
 
-            # Break if we reach the end of the dungeon
-            if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
-                break
+            # Load the fireball image
+            fireball_image = self._media.loadImage(os.path.join('data', 'images', 'effects', 'fireball.png'))
+            fireball_image = pygame.transform.scale(fireball_image, (30, 30))  # Resize as needed
+
+            # Animate the fireball from start to target
+            steps = 30  # Number of animation steps
+            for step in range(steps + 1):
+                # Interpolate the fireball's position
+                current_x = start_x + (target_x - start_x) * step / steps
+                current_y = start_y + (target_y - start_y) * step / steps
+
+                # Draw the map and units
+                self.fillDungeon_tiles(target_position, False)
+                for sprite in self._screen.get_sprites():
+                    sprite.draw(self._screen)
+
+                # Draw the fireball
+                self._screen.blit(fireball_image, (current_x, current_y))
+
+                # Update the display and add delay for smooth animation
+                pygame.display.update()
+                pygame.time.delay(30)
+
+    def play(self, attack_type, target_position, start_position=None):
+        """
+        Plays an attack animation on the specified tile.
+        :param attack_type: The type of attack (e.g., "Thunder Strike").
+        :param target_position: The logical grid position (row, col) of the target tile.
+        :param start_position: The logical grid position (row, col) of the start tile (for fireball).
+        """
+        if attack_type == "Thunder Strike":
+            # Load the effect image
+            image = self._media.loadImage(os.path.join('data', 'images', 'effects', 'thunder.png'))
+
+            # Calculate isometric screen coordinates
+            target_x, target_y = self.get_isometric_position(*target_position)
+            self._screen.blit(image, (target_x, target_y-50))
+
+        elif attack_type == "Fireball" and start_position:
+            # Initialize and add the fireball animation
+            fireball = Fireball(start_position, target_position, self)
+            self.fireball_group.add(fireball)
+
+
+import pygame
+import math
+
+import pygame
+import math
+
+import pygame
+import math
+
+import pygame
+import math
+
+class Fireball(pygame.sprite.Sprite):
+    def __init__(self, start_position, target_position, dungeon_manager):
+        super().__init__()
+        self.dungeon_manager = dungeon_manager
+
+        # Load fireball images for animation
+        self.images = []
+        for i in range(1, 5):  # Assuming 5 frames for the explosion
+            img = pygame.image.load(f'images/fireball/exp{i}.png')
+            img = pygame.transform.scale(img, (50, 50))  # Adjust fireball size
+            self.images.append(img)
+
+        self.index = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+
+        # Get screen positions for start and target
+        self.start_x, self.start_y = self.dungeon_manager.get_isometric_position(*start_position)
+        self.target_x, self.target_y = self.dungeon_manager.get_isometric_position(*target_position)
+
+        # Set fireball position to start
+        self.current_x = float(self.start_x)
+        self.current_y = float(self.start_y)
+
+        # Calculate total distance and step increments
+        self.total_distance = math.sqrt((self.target_x - self.start_x) ** 2 + (self.target_y - self.start_y) ** 2)
+        self.steps = 15  # Adjust for animation smoothness
+        self.step_x = (self.target_x - self.start_x) / self.steps
+        self.step_y = (self.target_y - self.start_y) / self.steps
+
+        self.counter = 0
+        self.finished = False
+
+    def update(self):
+        if not self.finished:
+            # Move the fireball
+            self.current_x += self.step_x
+            self.current_y += self.step_y
+            self.rect.center = (self.current_x, self.current_y)
+
+            # Update the animation frame
+            if self.counter % 2 == 0 and self.index < len(self.images) - 1:
+                self.index += 1
+                self.image = self.images[self.index]
+
+            # Check if the fireball reached the target
+            self.counter += 1
+            if self.counter >= self.steps:
+                self.finished = True
+                self.kill()
+
+
+
+
+
 
 
 

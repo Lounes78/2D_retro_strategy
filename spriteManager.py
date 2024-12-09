@@ -106,7 +106,8 @@ class spriteManager(object):
         bar_x = self.healthBarePosition[0]
         bar_y = self.healthBarePosition[1]
         fill_width = int((self.health / self.max_health) * bar_width)
-        print(f"this is the bar position: {bar_x, bar_y}")
+
+        #print(f"this is the bar position: {bar_x, bar_y}")
         # Draw the bar
         pygame.draw.rect(screen, (255, 0, 0), (bar_x, bar_y, bar_width, bar_height))  # Red for max health
         pygame.draw.rect(screen, (0, 255, 0), (bar_x, bar_y, fill_width, bar_height))
