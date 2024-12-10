@@ -1,0 +1,1 @@
+HerosGenerator files are now commented in Chinese, the language version will be updated later.
