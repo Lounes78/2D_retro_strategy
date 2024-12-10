@@ -26,6 +26,7 @@ class FireSprite(spriteManager):
     def perform_special_attack(self, target):
         print(f"{self.name} casts {self.attacks[1]} at {target.mapPosition}!")
         target.take_damage(45)  # 独特技能造成 45 点伤害
+        target.apply_status_effect("Burn", 3)
 
 
 # 定义冰属性子类
@@ -38,7 +39,7 @@ class IceSprite(spriteManager):
     def perform_special_attack(self, target):
         print(f"{self.name} summons a {self.attacks[1]} on {target.mapPosition}!")
         target.take_damage(35)  # 独特技能造成 35 点伤害
-        target.freeze()  # 附加冰冻效果
+        target.apply_status_effect("Frozen", 2)  # 附加冰冻效果
 
     def freeze(self):
         print(f"{self.name}'s target is frozen and loses their next turn!")
@@ -67,15 +68,15 @@ def create_characters(dungeon, media):
     characters.append(WaterSprite(dungeon, media, [0, 3], "Wave Rider"))
 
     # 火属性角色
-    characters.append(FireSprite(dungeon, media, [1, 0], "Flame Knight"))
-    characters.append(FireSprite(dungeon, media, [1, 3], "Blaze Mage"))
+    characters.append(FireSprite(dungeon, media, [5, 0], "Flame Knight"))
+    characters.append(FireSprite(dungeon, media, [5, 3], "Blaze Mage"))
 
     # 冰属性角色
-    characters.append(IceSprite(dungeon, media, [2, 0], "Frost Guardian"))
-    characters.append(IceSprite(dungeon, media, [2, 3], "Snow Sorcerer"))
+    characters.append(IceSprite(dungeon, media, [10, 0], "Frost Guardian"))
+    characters.append(IceSprite(dungeon, media, [10, 3], "Snow Sorcerer"))
 
     # 雷属性角色
-    characters.append(ThunderSprite(dungeon, media, [3, 0], "Storm Hunter"))
-    characters.append(ThunderSprite(dungeon, media, [3, 3], "Lightning Avenger"))
+    characters.append(ThunderSprite(dungeon, media, [15, 0], "Storm Hunter"))
+    characters.append(ThunderSprite(dungeon, media, [15, 3], "Lightning Avenger"))
 
     return characters
