@@ -15,6 +15,7 @@ class dungeonManager(object):
         self._rowTmp = 0
         self._colTmp = 0
         self._tmpAnimateSprite = 0
+        self.already_played = False
 
     def recordTiles(self, tileFile): # create a dictionary of terrain tiles from the tiles.txt file
         """Seeks usable tiles."""
@@ -61,7 +62,7 @@ class dungeonManager(object):
 
 
 
-    def fillDungeon_tiles(self, unit_positions, target_position = False):
+    def fillDungeon_tiles(self, unit_positions, target_position = False, played = [False, False]):
         """Render only the tiles of the dungeon."""
         self._stepX = 0 # en pixel
         self._stepY = 150
@@ -74,14 +75,18 @@ class dungeonManager(object):
         self._centeredItemX = self._windowManager.centerItemX(self._dict[self.dungeon[self._col][self._row]]) + 20
                         
         highlight_positions = set()
-        row, col = unit_positions
-        if not target_position:
-            for dr in [-2, -1, 0, 1, 2]:
-                for dc in [-2, -1, 0, 1, 2]:
-                    if abs(dr) + abs(dc) <= 2:  # Limit to a radius of 2 tiles
-                        highlight_positions.add((row + dr, col + dc))
-        else:
-            highlight_positions.add((row, col))
+        if played == [False, False]:
+            row, col = unit_positions
+            if not target_position:
+                for dr in [-2, -1, 0, 1, 2]:
+                    for dc in [-2, -1, 0, 1, 2]:
+                        if abs(dr) + abs(dc) <= 2:  # Limit to a radius of 2 tiles
+                            highlight_positions.add((row + dr, col + dc))
+            else:
+                highlight_positions.add((row, col))
+            self.previous_highlight_positions = highlight_positions
+        else: # utiliser le highlighte_positions precedent
+            highlight_positions = self.previous_highlight_positions
         
         while True:
             current_position = (self._col, self._row)

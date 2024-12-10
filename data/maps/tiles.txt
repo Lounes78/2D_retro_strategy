@@ -8,3 +8,4 @@ D deepWater.png
 B tileBase.png
 I bigIce.png
 C cloud.png
+K red_flag.png

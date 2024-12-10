@@ -8,6 +8,7 @@ explosion_group = pygame.sprite.Group()
 class spriteManager(object):
 
     def __init__(self, dungeon, media, mapPosition):
+        self.max_move = 2
         self.menu_open = False
         self.attacks = ["Fireball", "Ice Spike", "Thunder Strike"]
         self.selected_attack = 0

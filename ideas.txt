@@ -9,6 +9,7 @@ corriger la transision de role en considerant le fait qu il faut retirer son doi
 du clavier 
 
 
+
 ------------ Physical Intelligence ------------
 
 
@@ -20,4 +21,3 @@ du clavier
 --> IMPLEMENTER TT ça le matin
 
 --- dessiner des variations du perso
-

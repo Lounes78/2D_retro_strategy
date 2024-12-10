@@ -16,14 +16,21 @@ current_turn = 0  # 0 for player 1 and 1 for player 2
 
 class Player():
     def __init__(self, name, sprite_managers):
+        self.number_of_moves = 0
         self.name = name
-        self.played = False
+        self.played = [False, False]
         self.sprite_managers = sprite_managers if sprite_managers else []  # List of unit sprite managers
         self.is_active = False # False by default
     
-    def take_turn(self, action, unit_index=0):
+    def take_turn(self, action, unit_index=0, sprite_max_moove=2):
         if unit_index < len(self.sprite_managers):  # Ensure the unit exists
-            self.played = True
+            if self.number_of_moves >= sprite_max_moove:
+                self.number_of_moves = 0
+                self.played = [True, True]
+            else:
+                self.played = [True, False]
+                
+            self.number_of_moves += 1
             if action == 1:  # Move up
                 self.sprite_managers[unit_index].update(1)
             elif action == 2:  # Move down
@@ -196,11 +203,11 @@ class Game:
             # Handle turn switching with cooldown
             if (
                 (players[active_player_index].is_turn
-                and players[active_player_index].played
+                and all(players[active_player_index].played)
                 and current_time - last_turn_switch_time > switch_cooldown)
-                or (players[active_player_index].played)
+                or all(players[active_player_index].played)
             ):
-                players[active_player_index].played = False
+                players[active_player_index].played = [False, False]
                 players[active_player_index].set_active(False)
                 active_player_index = (active_player_index + 1) % len(players)
                 players[active_player_index].set_active(True)
@@ -216,13 +223,13 @@ class Game:
             if not self.menu_open:
                 if players[active_player_index].is_turn():
                     if key_input[K_UP]:
-                        players[active_player_index].take_turn(1, current_unit_index)
+                        players[active_player_index].take_turn(1, current_unit_index, players[active_player_index].sprite_managers[current_unit_index].max_move)
                     elif key_input[K_DOWN]:
-                        players[active_player_index].take_turn(2, current_unit_index)
+                        players[active_player_index].take_turn(2, current_unit_index, players[active_player_index].sprite_managers[current_unit_index].max_move)
                     elif key_input[K_LEFT]:
-                        players[active_player_index].take_turn(3, current_unit_index)
+                        players[active_player_index].take_turn(3, current_unit_index, players[active_player_index].sprite_managers[current_unit_index].max_move)
                     elif key_input[K_RIGHT]:
-                        players[active_player_index].take_turn(4, current_unit_index)
+                        players[active_player_index].take_turn(4, current_unit_index, players[active_player_index].sprite_managers[current_unit_index].max_move)
                 self.target_position_sprite.mapPosition = [active_unit.mapPosition[0], active_unit.mapPosition[1]]
 
             # Update the game screen
@@ -245,7 +252,7 @@ class Game:
                         
                     
 
-            self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected)
+            self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected, players[active_player_index].played)
             # Updates the units
             for player in players:
                 for sprite in player.sprite_managers:
@@ -266,7 +273,7 @@ class Game:
                             players[1 - active_player_index].sprite_managers.remove(enemy_sprite)
                                     
                         #change the player once attacked
-                        players[active_player_index].played = False  
+                        players[active_player_index].played = [False, False]
                         players[active_player_index].set_active(False)
                         active_player_index = (active_player_index + 1) % len(players)  
                         players[active_player_index].set_active(True)
