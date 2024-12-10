@@ -11,7 +11,7 @@ class spriteManager(object):
         self.attack_selected = False
         self.cursor_target_position = []
         self.target_position = None
-        
+        self.marked_for_removal = False
         self.max_health = 100
         self.health = 100
         self.healthBarePosition = [30, 20]

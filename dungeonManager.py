@@ -18,6 +18,7 @@ class dungeonManager(object):
         self._colTmp = 0
         self._tmpAnimateSprite = 0
         self.fireball_group = pygame.sprite.Group()
+        self.tsunami_group=pygame.sprite.Group()
 
     def recordTiles(self, tileFile): # create a dictionary of terrain tiles from the tiles.txt file
         """Seeks usable tiles."""
@@ -192,64 +193,6 @@ class dungeonManager(object):
         y = 150 + (row + col) * 10.5 - int(self.elevation[row][col]) * 20
         return x, y
 
-    def play2(self, attack_type, target_position,start_position=None):
-        """
-        Plays an attack animation on the specified tile.
-        :param attack_type: The type of attack (e.g., "Thunder Strike").
-        :param target_position: The logical grid position (row, col) of the target tile.
-        """
-        if attack_type == "Thunder Strike":
-            # Load the effect image
-            image = self._media.loadImage(os.path.join('data', 'images', 'effects', 'thunder.png'))
-
-            # Extract the target position
-            row, col = target_position
-
-            # Calculate isometric screen coordinates
-            base_tile = self._dict[self.dungeon[row][col]]
-            centered_x = self._windowManager.centerItemX(base_tile) + 20
-            target_x = centered_x + (col - row) * 19
-            target_y = 150 + (row + col) * 10 - int(self.elevation[row][col]) * 20 - 50  # Offset for lightning effect
-
-            # Create a transparent surface for effects (same size as the main screen)
-            effects_surface = pygame.Surface(self._screen.get_size(), pygame.SRCALPHA)
-
-            # Draw the effect on the transparent surface
-            effects_surface.blit(image, (target_x, target_y))
-
-            # Ensure the effect surface is drawn last
-            self._screen.blit(effects_surface, (0, 0))
-
-        elif attack_type == "Fireball" and start_position:
-            # Ensure start position is provided for Fireball
-            start_row, start_col = start_position
-            start_tile = self._dict[self.dungeon[start_row][start_col]]
-            start_centered_x = self._windowManager.centerItemX(start_tile) + 20
-            start_x = start_centered_x + (start_col - start_row) * 19
-            start_y = 150 + (start_row + start_col) * 10 - int(self.elevation[start_row][start_col]) * 20
-
-            # Load the fireball image
-            fireball_image = self._media.loadImage(os.path.join('data', 'images', 'effects', 'fireball.png'))
-            fireball_image = pygame.transform.scale(fireball_image, (30, 30))  # Resize as needed
-
-            # Animate the fireball from start to target
-            steps = 30  # Number of animation steps
-            for step in range(steps + 1):
-                # Interpolate the fireball's position
-                current_x = start_x + (target_x - start_x) * step / steps
-                current_y = start_y + (target_y - start_y) * step / steps
-
-                # Draw the map and units
-                self.fillDungeon_tiles(target_position, False)
-                for sprite in self._screen.get_sprites():
-                    sprite.draw(self._screen)
-
-                # Draw the fireball
-                self._screen.blit(fireball_image, (current_x, current_y))
-
-                # Update the display and add delay for smooth animation
-                pygame.display.update()
-                pygame.time.delay(30)
 
     def play(self, attack_type, target_position, start_position=None):
         """
@@ -261,15 +204,40 @@ class dungeonManager(object):
         if attack_type == "Thunder Strike":
             # Load the effect image
             image = self._media.loadImage(os.path.join('data', 'images', 'effects', 'thunder.png'))
+            target_x, target_y = self.get_isometric_position(*target_position)
+            duration = 500  # Duration in milliseconds
+            start_time = pygame.time.get_ticks()
+
+            while pygame.time.get_ticks() - start_time < duration:
+                self._screen.blit(image, (target_x, target_y - 50))
+                pygame.display.update()
+            # Calculate isometric screen coordinates
+
+            self._screen.blit(image, (target_x, target_y-50))
+
+        if attack_type == "Water Splash":
+            image = self._media.loadImage(os.path.join('data', 'images', 'effects', 'water splash.png'))
 
             # Calculate isometric screen coordinates
             target_x, target_y = self.get_isometric_position(*target_position)
-            self._screen.blit(image, (target_x, target_y-50))
+            img = pygame.transform.scale(image, (50, 50))
+            duration = 500  # Duration in milliseconds
+            start_time = pygame.time.get_ticks()
+
+            while pygame.time.get_ticks() - start_time < duration:
+                self._screen.blit(img, (target_x, target_y - 50))
+                pygame.display.update()
+            #self._screen.blit(img, (target_x, target_y - 50))
 
         elif attack_type == "Fireball" and start_position:
             # Initialize and add the fireball animation
             fireball = Fireball(start_position, target_position, self)
             self.fireball_group.add(fireball)
+
+        elif attack_type == "Tsunami Wave" and start_position:
+            # Initialize and add the fireball animation
+            tsunami = Tsunami(start_position, target_position, self)
+            self.tsunami_group.add(tsunami)
 
 
 
@@ -325,6 +293,108 @@ class Fireball(pygame.sprite.Sprite):
                 self.finished = True
                 self.kill()
 
+class Tsunami2(pygame.sprite.Sprite):
+    def __init__(self, start_position, target_position, dungeon_manager):
+        super().__init__()
+        self.dungeon_manager = dungeon_manager
+
+        # Load tsunami images for animation
+        self.images = []
+        for i in range(1, 5):  # Assuming 4 frames for the animation
+            img = pygame.image.load(f'images/tsunami/tsu{i}.png')
+            img = pygame.transform.scale(img, (50, 50))  # Adjust size as needed
+            self.images.append(img)
+
+        self.index = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+
+        # Get isometric screen positions
+        self.start_x, self.start_y = self.dungeon_manager.get_isometric_position(*start_position)
+        self.target_x, self.target_y = self.dungeon_manager.get_isometric_position(*target_position)
+
+        # Set initial position
+        self.current_x = float(self.start_x)
+        self.current_y = float(self.start_y)
+
+        # Calculate distance and steps
+        self.total_distance = math.sqrt((self.target_x - self.start_x) ** 2 + (self.target_y - self.start_y) ** 2)
+        self.steps = 15  # Total animation steps
+        self.step_x = (self.target_x - self.start_x) / self.steps
+        self.step_y = (self.target_y - self.start_y) / self.steps
+
+        self.step_counter = 0
+        self.frame_duration = 4  # Number of steps each frame lasts
+        self.finished = False
+
+    def update(self):
+        if not self.finished:
+            # Move the fireball
+            self.current_x += self.step_x
+            self.current_y += self.step_y
+            self.rect.center = (self.current_x, self.current_y)
+
+            # Update frame based on step count
+            if self.step_counter % self.frame_duration == 0 and self.index < len(self.images) - 1:
+                self.index += 1
+                self.image = self.images[self.index]
+
+            # Check if the fireball has reached the target
+            self.step_counter += 1
+            if self.step_counter >= self.steps:
+                self.finished = True
+                self.kill()
+
+class Tsunami(pygame.sprite.Sprite):
+    def __init__(self, start_position, target_position, dungeon_manager):
+        super().__init__()
+        self.dungeon_manager = dungeon_manager
+
+        # Load fireball images for animation
+        self.images = []
+        for i in range(1, 5):  # Assuming 4 frames for the explosion
+            img = pygame.image.load(f'images/tsunami/tsu{i}.png')
+            img = pygame.transform.scale(img, (50, 50))  # Adjust fireball size
+            self.images.append(img)
+
+        self.index = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+
+        # Get screen positions for start and target
+        self.start_x, self.start_y = self.dungeon_manager.get_isometric_position(*start_position)
+        self.target_x, self.target_y = self.dungeon_manager.get_isometric_position(*target_position)
+
+        # Set fireball position to start
+        self.current_x = float(self.start_x)
+        self.current_y = float(self.start_y)
+
+        # Calculate total distance and step increments
+        self.total_distance = math.sqrt((self.target_x - self.start_x) ** 2 + (self.target_y - self.start_y) ** 2)
+        self.steps = 15  # Adjust for animation smoothness
+        self.step_x = (self.target_x - self.start_x) / self.steps
+        self.step_y = (self.target_y - self.start_y) / self.steps
+
+        self.counter = 0
+        self.finished = False
+
+    def update(self):
+        if not self.finished:
+            # Move the fireball
+            self.current_x += self.step_x
+            self.current_y += self.step_y
+            self.rect.center = (self.current_x, self.current_y)
+
+            # Update the animation frame
+            if self.counter % 2 == 0 and self.index < len(self.images) - 1:
+                self.index += 1
+                self.image = self.images[self.index]
+
+            # Check if the fireball reached the target
+            self.counter += 1
+            if self.counter >= self.steps:
+                self.finished = True
+                self.kill()
 
 
 
