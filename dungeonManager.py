@@ -1,6 +1,7 @@
 import os, sys, random
 import pygame
 from pygame.locals import *
+import math
 #from attackAnimation import *
 
 class dungeonManager(object):
@@ -271,17 +272,7 @@ class dungeonManager(object):
             self.fireball_group.add(fireball)
 
 
-import pygame
-import math
 
-import pygame
-import math
-
-import pygame
-import math
-
-import pygame
-import math
 
 class Fireball(pygame.sprite.Sprite):
     def __init__(self, start_position, target_position, dungeon_manager):
