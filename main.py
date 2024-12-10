@@ -7,6 +7,7 @@ from mediaManager import *
 from windowManager import *
 from dungeonManager import *
 from spriteManager import *
+from HerosGenerator import *
 
 
 
@@ -166,6 +167,14 @@ class Game:
         second_character_units = [spriteManager(self.dungeon_manager, self.media, [10, 3 * i]) for i in range(4)]
 
 
+        """# Create units for each player with unique media instances
+        all_characters = create_characters(self.dungeon_manager, self.media)
+        # Player 1 gets the first 4 characters
+        dracko_units = all_characters[:4]
+        # Player 2 gets the next 4 characters
+        second_character_units = all_characters[4:]"""
+
+
         # Initialize players with their respective units
         self.dracko_player = Player("Dracko", dracko_units)
         self.second_player = Player("Second Player", second_character_units)
@@ -190,7 +199,13 @@ class Game:
 
         while True:
             pygame.event.pump() # updating the events queue from the os
-            key_input = pygame.key.get_pressed() 
+            key_input = pygame.key.get_pressed()
+
+            """test for updating the debuff effects"""
+            for player in players:
+                for sprite in player.sprite_managers:
+                    sprite.update_status_effects()
+            """"""
 
             # Get the current time
             current_time = pygame.time.get_ticks()
@@ -214,8 +229,20 @@ class Game:
                 last_turn_switch_time = current_time  # Update the timestamp
 
             active_unit = players[active_player_index].sprite_managers[current_unit_index]
+
+
+            """if the active unit is frozen or paralysis, then their movement will be limited"""
+            if active_unit.has_effect("Frozen"):
+                print(f"{active_unit.name} is frozen and cannot move this turn!")
+                continue
+
+            elif active_unit.has_effect("Paralysis") and random.choice([True, False]):
+                print(f"{active_unit.name} is paralyzed and skips this turn!")
+                continue  # 跳过回合
+
             unit_position = active_unit.mapPosition 
             unit_position = players[active_player_index].sprite_managers[current_unit_index].mapPosition
+
 
 
             # Process movement only for the active player

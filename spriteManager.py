@@ -23,7 +23,9 @@ class spriteManager(object):
         self.dungeon = dungeon
         self._media = media
         self.mapPosition = mapPosition # position of the sprite 
-        
+
+        self.status_effects = {}
+
         self._tmpAnimateSprite = 0
         self.spriteFrontLeft = []
         self.spriteFrontLeft.append(self._media.loadImage(os.path.join('data', 'images', 'character', 'frontLeftDrackoTwo.png')))
@@ -233,3 +235,40 @@ class spriteManager(object):
 
 
 
+
+    """test for adding the debuff status"""
+
+    def     apply_status_effect(self, effect_name, duration):
+        """应用状态效果"""
+        self.status_effects[effect_name] = duration
+        print(f"{self} is affected by {effect_name} for {duration} turns!")
+
+    def update_status_effects(self):
+        """更新所有状态效果的持续时间"""
+        expired_effects = []
+        for effect, duration in self.status_effects.items():
+            # 根据效果处理逻辑
+            if effect == "Burn":  # 灼烧：每回合扣血
+                self.take_damage(5)
+                print(f"{self} suffers 5 damage from Burn!")
+            elif effect == "Poison":  # 中毒：持续伤害
+                self.take_damage(3)
+                print(f"{self} suffers 3 damage from Poison!")
+            elif effect == "Frozen":  # 冻结：限制行动
+                print(f"{self} is frozen and cannot move this turn!")
+            elif effect == "Paralysis":  # 麻痹：随机无法行动
+                if random.choice([True, False]):
+                    print(f"{self} is paralyzed and skips this turn!")
+
+            # 更新持续时间
+            self.status_effects[effect] -= 1
+            if self.status_effects[effect] <= 0:
+                expired_effects.append(effect)
+            # 移除过期的效果
+        for effect in expired_effects:
+            del self.status_effects[effect]
+            print(f"{self} is no longer affected by {effect}!")
+
+    def has_effect(self, effect_name):
+        """检查是否有特定效果"""
+        return effect_name in self.status_effects
