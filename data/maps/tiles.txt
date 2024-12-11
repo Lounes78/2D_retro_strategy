@@ -9,4 +9,6 @@ B tileBase.png
 I bigIce.png
 C cloud.png
 N gray.png
+Q red.png
+L blue.png
 K white_flag.png

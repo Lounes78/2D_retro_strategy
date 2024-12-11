@@ -68,6 +68,7 @@ class Game:
     def __init__(self):
         pygame.init()
         # self.highlighted_positions = set()
+        self.new_zone_position = None
         self.add_zone = False # Check if we should add a zone
         self.already_occupied = []
         self.target_position = []
@@ -113,7 +114,7 @@ class Game:
 
         # Create a semi-transparent black background
         overlay = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 180))  # Black with 70% transparency
+        overlay.fill((0, 0, 0, 180)) 
 
         # Get the start time
         start_time = pygame.time.get_ticks()
@@ -223,7 +224,7 @@ class Game:
         
         # Initial version of the map
         self.file_path = "data/maps/firstDungeon.txt"
-        self.flag_initial_position = (10, 17)
+        self.flag_initial_position = (5, 7)
         self.already_occupied.append(self.flag_initial_position)
         self.map = update_map(self.file_path, None, 'N', self.flag_initial_position, [], distance=2)
         tilde_file = self.media.loadReadFile(os.path.join('data', 'maps', 'tiles.txt'))
@@ -252,10 +253,55 @@ class Game:
         # highlighted target position
         self.target_position_sprite = spriteManager(self.dungeon_manager, self.media, [0, 0])
         
-
-        
-        
         pygame.display.update()
+        
+        
+        
+        
+    def handle_zone(self, key_input, players):
+        for zone_position in self.already_occupied:
+            zone_x, zone_y = zone_position
+            for player in players:
+                for unit in player.sprite_managers:
+                    unit_x, unit_y = unit.mapPosition
+                    
+                    if player.name == "Dracko":
+                        distance_x = abs(unit_x - zone_x)
+                        distance_y = abs(unit_y - zone_y)
+                        flag1 = distance_x <= 2 and distance_y <= 2
+                        flag2 = False
+                    
+                    elif player.name == "Second Player":
+                        distance_x = abs(unit_x - zone_x)
+                        distance_y = abs(unit_y - zone_y)
+                        flag2 = distance_x <= 2 and distance_y <= 2
+                    
+                    if flag1 and flag2: # Give the correct color to the zone and start / restart the score
+                        self.map = update_map(self.file_path, self.map, 'N', self.already_occupied[0], self.already_occupied, distance=2)
+                        self.dungeon_manager.recordDungeon(self.map)
+                    elif flag1:
+                        self.map = update_map(self.file_path, self.map, 'L', self.already_occupied[0], self.already_occupied, distance=2)
+                        self.dungeon_manager.recordDungeon(self.map)
+                    elif flag2:
+                            self.map = update_map(self.file_path, self.map, 'Q', self.already_occupied[0], self.already_occupied, distance=2)
+                            self.dungeon_manager.recordDungeon(self.map)
+                    
+                    
+                    
+                        # print(f"unit {unit_x, unit_y} is close to zone {zone_x, zone_y}")
+
+        if key_input[K_n]:
+            self.add_zone = True
+            self.new_zone_position = (20, 10)
+
+        # Updating the map if necessary
+        if self.add_zone == True:
+            self.add_zone = False
+            if self.new_zone_position is not None and self.new_zone_position not in self.already_occupied:
+                self.map = update_map(self.file_path, self.map, 'N', self.new_zone_position, self.already_occupied, distance=2)
+                self.dungeon_manager.recordDungeon(self.map)
+                self.already_occupied.append(self.new_zone_position)
+
 
 
     def run_game_loop(self):
@@ -279,7 +325,7 @@ class Game:
 
 
         highlighted_positions = set()
-        new_zone_position = None
+        
 
         while True:
             pygame.event.pump()  # updating the events queue from the os
@@ -288,18 +334,10 @@ class Game:
             current_time = pygame.time.get_ticks()
             # print(current_time)
 
-            if key_input[K_n]:
-                self.add_zone = True
-                new_zone_position = (10, 4)
 
-            # Updating the map if necessary
-            if self.add_zone == True:
-                self.add_zone = False
-                if new_zone_position is not None and new_zone_position not in self.already_occupied:
-                    self.map = update_map(self.file_path, self.map, 'N', new_zone_position, self.already_occupied, distance=2)
-                    self.dungeon_manager.recordDungeon(self.map)
-                    self.already_occupied.append(new_zone_position)
 
+            # Handle zone things
+            self.handle_zone(key_input, players)
 
             # Handle unit switching within the active player
             if key_input[K_TAB]:
