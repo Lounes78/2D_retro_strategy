@@ -22,5 +22,5 @@ Les highlighted tiles se comportent mal
 --- N'arrive pas (ou plus ?) à lancer une attaque si on a deja bougé
 
 
---- debuff system, still updating, expected to push early tomorrow morning
+--- debuff system, still updating, expected to push early tomorrow morning(20241212)
 --- change the initial position of heros when the game starts
