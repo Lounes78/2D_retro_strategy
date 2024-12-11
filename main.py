@@ -409,7 +409,14 @@ class Game:
                 for sprite in player.sprite_managers:
                     sprite.dungeon.fillDungeon_sprites(sprite, sprite == active_unit, self.screen)
             for monster in self.monsters:
+                other_monsters = [m for m in self.monsters if m != monster]  # Liste des autres monstres
+                player_units = [unit for player in players for unit in player.sprite_managers]  # Toutes les unités des joueurs
+                monster.move_randomly(other_monsters, player_units)
+
+                #print(f"{monster.name} new position: {monster.mapPosition}")        
+            for monster in self.monsters:
                 self.dungeon_manager.fillDungeon_monsters(monster, self.screen)
+                
 
             if attack_animation_playing:
                 if attack_animation_type == "Thunder Strike":
