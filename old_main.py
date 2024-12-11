@@ -9,6 +9,10 @@ from dungeonManager import *
 from spriteManager import *
 from HerosGenerator import *
 
+
+
+
+
 current_turn = 0  # 0 for player 1 and 1 for player 2
 
 
@@ -17,8 +21,8 @@ class Player():
         self.name = name
         self.played = False
         self.sprite_managers = sprite_managers if sprite_managers else []  # List of unit sprite managers
-        self.is_active = False  # False by default
-
+        self.is_active = False # False by default
+    
     def take_turn(self, action, unit_index=0):
         if unit_index < len(self.sprite_managers):  # Ensure the unit exists
             self.played = True
@@ -30,16 +34,18 @@ class Player():
                 self.sprite_managers[unit_index].update(3)
             elif action == 4:  # Move right
                 self.sprite_managers[unit_index].update(4)
-
+    
+    
     def set_active(self, active):
         self.is_active = active
-
-    def is_turn(self):  # checks if it is the player turn
+        
+    def is_turn(self): # checks if it is the player turn
         return self.is_active
 
     def get_units_positions(self):
-        return [sprite_manager.mapPosition for sprite_manager in self.sprite_managers]
-
+        return [sprite_manager.mapPosition for sprite_manager in self.sprite_managers] 
+        
+        
 
 class Game:
     """Class representing the main game."""
@@ -50,6 +56,7 @@ class Game:
         self.menu_open = False
         self.screen = pygame.display.set_mode((800, 600))
         self.media = loadMedia()
+        
 
         self.window_manager = windowManager(self.screen)
         self.background = self.media.loadImage(os.path.join('data', 'images', 'background', 'firstDungeon.png'))
@@ -79,17 +86,17 @@ class Game:
         self.centered_logo_x = self.window_manager.centerItemX(self.logo[self.sprite_counter])
         self.centered_logo_y = self.window_manager.centerItemY(self.logo[self.sprite_counter])
         self.centered_character_x = (
-                self.window_manager.centerItemX(self.character_into[self.sprite_counter])
-                + self.logo[self.sprite_counter].get_width() / 2 - 10
+            self.window_manager.centerItemX(self.character_into[self.sprite_counter])
+            + self.logo[self.sprite_counter].get_width() / 2 - 10
         )
         self.centered_character_y = (
-                self.window_manager.centerItemY(self.character_into[self.sprite_counter])
-                + self.logo[self.sprite_counter].get_height() / 2 - 30
+            self.window_manager.centerItemY(self.character_into[self.sprite_counter])
+            + self.logo[self.sprite_counter].get_height() / 2 - 30
         )
         self.center_font_x = self.window_manager.centerItemX(self.font)
         self.center_font_y = (
-                self.window_manager.centerItemY(self.font)
-                + self.window_manager.centerItemX(self.logo[self.sprite_counter]) / 4
+            self.window_manager.centerItemY(self.font)
+            + self.window_manager.centerItemX(self.logo[self.sprite_counter]) / 4
         )
 
     def run_hello_screen(self):
@@ -132,12 +139,14 @@ class Game:
             self.dummy_counter = 0
         return flag
 
+
+
     def load_game(self):
         """Loads the game after the hello screen."""
         pygame.time.delay(500)
         self.sound.music.stop()
         self.sound = self.media.loadSound(os.path.join('data', 'music', 'bjorn__lynne-_the_long_journey_home.mid'))
-        # self.sound.music.play(-1)
+        #self.sound.music.play(-1)
 
         tilde_file = self.media.loadReadFile(os.path.join('data', 'maps', 'tiles.txt'))
         dungeon_file = self.media.loadReadFile(os.path.join('data', 'maps', 'firstDungeon.txt'))
@@ -150,8 +159,8 @@ class Game:
         self.screen.blit(self.background, (0, 0))
 
         # Create units for each player with unique media instances
-        # dracko_units = [spriteManager(self.dungeon_manager, self.media, [0, 3 * i]) for i in range(4)]
-        # second_character_units = [spriteManager(self.dungeon_manager, self.media, [10, 3 * i]) for i in range(4)]
+        #dracko_units = [spriteManager(self.dungeon_manager, self.media, [0, 3 * i]) for i in range(4)]
+        #second_character_units = [spriteManager(self.dungeon_manager, self.media, [10, 3 * i]) for i in range(4)]
         all_characters = create_characters(self.dungeon_manager, self.media)
         # Player 1 gets the first 4 characters
         dracko_units = all_characters[:4]
@@ -166,6 +175,8 @@ class Game:
         self.target_position_sprite = spriteManager(self.dungeon_manager, self.media, [0, 0])
         pygame.display.update()
 
+
+
     def run_game_loop(self):
         """Runs the main game loop."""
         # Start with Dracko's turn
@@ -176,23 +187,18 @@ class Game:
         attack_animation_playing = False
         attack_animation_position = None
         attack_animation_type = None
-        attack_animation_playing = False
-        animation_start_time = None
-
 
         self.fireball_group = pygame.sprite.Group()
-        self.tsunami_group = pygame.sprite.Group()
+        self.tsunami_group=pygame.sprite.Group()
 
         current_unit_index = 0
         last_turn_switch_time = 0  # Timestamp for the last turn switch
         switch_cooldown = 700
-
         # Cooldown in milliseconds for switching turns
 
+
         while True:
-            animation_duration = 100  # Durée totale de l'animation en ms
-            pending_removal = None
-            pygame.event.pump()  # updating the events queue from the os
+            pygame.event.pump() # updating the events queue from the os
             key_input = pygame.key.get_pressed()
 
             # Get the current time
@@ -206,10 +212,10 @@ class Game:
 
             # Handle turn switching with cooldown
             if (
-                    (players[active_player_index].is_turn
-                     and players[active_player_index].played
-                     and current_time - last_turn_switch_time > switch_cooldown)
-                    or (players[active_player_index].played)
+                (players[active_player_index].is_turn
+                and players[active_player_index].played
+                and current_time - last_turn_switch_time > switch_cooldown)
+                or (players[active_player_index].played)
             ):
                 players[active_player_index].played = False
                 players[active_player_index].set_active(False)
@@ -217,14 +223,16 @@ class Game:
                 players[active_player_index].set_active(True)
                 last_turn_switch_time = current_time  # Update the timestamp
 
-            if current_unit_index >= len(players[active_player_index].sprite_managers):
+            if current_unit_index >=len(players[active_player_index].sprite_managers):
                 current_unit_index = 0
             active_unit = players[active_player_index].sprite_managers[current_unit_index]
             unit_position = active_unit.mapPosition
-            # unit_position = players[active_player_index].sprite_managers[current_unit_index].mapPosition
+            #unit_position = players[active_player_index].sprite_managers[current_unit_index].mapPosition
+
 
             # Process movement only for the active player
             self.menu_open = active_unit.menu_open
+
 
             if not self.menu_open:
                 if players[active_player_index].is_turn():
@@ -241,6 +249,7 @@ class Game:
             # Update the game screen
             self.screen.blit(self.background, (0, 0))
 
+
             if active_unit.attack_selected:
                 if key_input[K_UP]:
                     self.target_position_sprite.update(1)
@@ -252,48 +261,52 @@ class Game:
                     self.target_position_sprite.update(4)
                 unit_position = self.target_position_sprite.mapPosition
 
-            attack_position = active_unit.handle_attacks(key_input, self.screen,
-                                                         self.target_position_sprite.mapPosition)
-            # print(active_unit.selected_attack)
+
+
+            attack_position = active_unit.handle_attacks(key_input, self.screen, self.target_position_sprite.mapPosition)
+            #print(active_unit.selected_attack)
             selected_attack = active_unit.attacks[active_unit.selected_attack]
-            # print(selected_attack)
+            #print(selected_attack)
             # find the ennemy and attack it
+
             if attack_position != None:
-                for enemy_sprite in players[not (active_player_index)].sprite_managers:
+                for enemy_sprite in players[not(active_player_index)].sprite_managers:
                     if enemy_sprite.mapPosition == attack_position:
                         print(f"this is the {attack_position}")
 
-                        damage = 30  # par exemple
+                        damage = 30 # par exemple
 
                         attack_animation_playing = True
                         attack_animation_position = attack_position
                         attack_animation_type = selected_attack
                         attack_animation_start_position = active_unit.mapPosition
                         animation_start_time = pygame.time.get_ticks()
-                        #pending_removal = enemy_sprite if enemy_sprite.is_defeated() else None
+                        animation_duration = 1000
                         active_unit.perform_attack(damage, enemy_sprite)
 
                         if enemy_sprite.is_defeated():
-                            # )
-                            pending_removal = enemy_sprite
-                            #players[1 - active_player_index].sprite_managers.remove(enemy_sprite)
-                            # enemy_sprite.marked_for_removal = True
+                            #)
+                            players[1 - active_player_index].sprite_managers.remove(enemy_sprite)
+                            #enemy_sprite.marked_for_removal = True
 
-                        # change the player once attacked
+
+                        #change the player once attacked
                         players[active_player_index].played = False
                         players[active_player_index].set_active(False)
                         active_player_index = (active_player_index + 1) % len(players)
                         players[active_player_index].set_active(True)
                         last_turn_switch_time = current_time
 
-            # print(unit_position)
-            # print(active_unit.attack_selected) # true or false selon si on a activé un attaque,true quand mon bouge la highlighted tile
-            self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected, selected_attack)
-            # Updates the units
 
+            #print(unit_position)
+            #print(active_unit.attack_selected) # true or false selon si on a activé un attaque,true quand mon bouge la highlighted tile
+
+            self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected,selected_attack)
+            # Updates the units
             for player in players:
                 for sprite in player.sprite_managers:
                     sprite.dungeon.fillDungeon_sprites(sprite, sprite == active_unit, self.screen)
+
 
             if attack_animation_playing:
                 if attack_animation_type == "Thunder Strike":
@@ -306,55 +319,41 @@ class Game:
                     self.dungeon_manager.play(attack_animation_type, attack_animation_position)
                 elif attack_animation_type == "Tsunami Wave":
                     self.dungeon_manager.play(attack_animation_type, attack_animation_position,
-                                              start_position=attack_animation_start_position)
-                self.dungeon_manager.tsunami_group.update()
-                self.dungeon_manager.tsunami_group.draw(self.screen)
-                self.dungeon_manager.fireball_group.update()
-                self.dungeon_manager.fireball_group.draw(self.screen)
+                                             start_position=attack_animation_start_position)
 
-                self.screen.blit(self.background, (0, 0))  # Re-dessine l'arrière-plan
-                self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected, selected_attack)
-                for player in players:
-                    for sprite in player.sprite_managers:
-                        sprite.dungeon.fillDungeon_sprites(sprite, sprite == active_unit, self.screen)
-
-                # Dessin des animations après mise à jour
-                self.dungeon_manager.fireball_group.draw(self.screen)
-                self.dungeon_manager.tsunami_group.draw(self.screen)
-
-                # Terminer l'animation après un délai
-                if pygame.time.get_ticks() - animation_start_time > animation_duration:
-                    attack_animation_playing = False
-                    animation_start_time = None
-                # attack_animation_playing = False
+                attack_animation_playing=False
+                #attack_animation_playing = False
             self.dungeon_manager.tsunami_group.update()
             self.dungeon_manager.tsunami_group.draw(self.screen)
             self.dungeon_manager.fireball_group.update()
             self.dungeon_manager.fireball_group.draw(self.screen)
-            # pygame.time.delay(2000)
 
-            # self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected, selected_attack)
+            #pygame.time.delay(2000)
+
+            #self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected, selected_attack)
 
             if key_input[K_ESCAPE] or pygame.event.peek(QUIT):
                 sys.exit()
-            # cloud_positions = [[3, 4]  # Example: positions of clouds
-            # cloud_position = [0, 1]  # Logical position of the cloud
-            # cloud_image = self.media.loadImage(os.path.join('data', 'images', 'character', 'back-left-dracko.png'))
-            # cloud_image_resized = pygame.transform.scale(cloud_image, (300, 100))  # Resize to tile size
+            #cloud_positions = [[3, 4]  # Example: positions of clouds
+            #cloud_position = [0, 1]  # Logical position of the cloud
+            #cloud_image = self.media.loadImage(os.path.join('data', 'images', 'character', 'back-left-dracko.png'))
+            #cloud_image_resized = pygame.transform.scale(cloud_image, (300, 100))  # Resize to tile size
 
             # Draw the cloud
 
-            # self.dungeon_manager.draw_cloud(self.screen, cloud_position, cloud_image)
+            #self.dungeon_manager.draw_cloud(self.screen, cloud_position, cloud_image)
 
             # Cloud image
 
             # Call the method to draw the cloud
-            # self.dungeon_manager.draw_cloud(self.screen, cloud_position, cloud_image)
+            #self.dungeon_manager.draw_cloud(self.screen, cloud_position, cloud_image)
 
             pygame.display.update()
-            # self.dungeon_manager.fillDungeon_effects(cloud_position, cloud_image)
+            #self.dungeon_manager.fillDungeon_effects(cloud_position, cloud_image)
 
             self.poll_events_with_timeout(185)  # General delay, interruptible
+
+
 
     def poll_events_with_timeout(self, timeout):
         """Polls for events during a timeout and breaks if a key is pressed."""
@@ -364,6 +363,8 @@ class Game:
                 if event.type == pygame.KEYDOWN or event.type == pygame.QUIT:
                     return  # Stop delay if a key is pressed or quit event is detected
             pygame.time.wait(1)  # Small wait to avoid busy-waiting
+
+
 
 
 if __name__ == "__main__":

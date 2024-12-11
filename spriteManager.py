@@ -12,6 +12,8 @@ class spriteManager(object):
         self.cursor_target_position = []
         self.target_position = None
         self.marked_for_removal = False
+        #self.removal_time = None
+        #self.marked_for_removal = False
         self.max_health = 100
         self.health = 100
         self.healthBarePosition = [30, 20]
@@ -121,6 +123,17 @@ class spriteManager(object):
     def is_alive(self):
         return self.health > 0
 
+    def is_defeated2(self):
+        if not self.is_alive() and not self.marked_for_removal:
+            # Start the removal timer when the unit dies
+            self.removal_time = pygame.time.get_ticks()
+            self.marked_for_removal = True
+        # If marked for removal, check if the delay has passed
+        if self.marked_for_removal:
+            delay = 2000  # 2 seconds delay
+            if pygame.time.get_ticks() - self.removal_time > delay:
+                return True
+        return False
 
     def is_defeated(self):
         return not(self.is_alive())
