@@ -188,6 +188,55 @@ class dungeonManager(object):
             if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
                 break
 
+
+
+
+
+
+    def fillDungeon_monsters(self, monster, screen):
+        """Render only the monster in the dungeon."""
+        self._stepX = 0
+        self._stepY = 150
+        self._rewinderStepX = 0
+        self._rewinderStepY = 150
+        self._row = self._rowTmp
+        self._col = self._colTmp
+        self._patch = 30
+        self._centeredItemX = self._windowManager.centerItemX(self._dict[self.dungeon[self._col][self._row]]) + 20
+
+        while True:
+            # Monster rendering
+            if monster and monster.mapPosition == [self._col, self._row]:
+                self._screen.blit(
+                    monster.sprite[monster._tmpAnimateSprite],
+                    (self._centeredItemX + self._stepX, self._stepY - 20 - int(self.elevation[self._col][self._row]) * 20)
+                )
+                monster._tmpAnimateSprite = (monster._tmpAnimateSprite + 1) % len(monster.sprite)
+
+            # Health bar rendering
+            if monster.mapPosition == [self._col, self._row]:
+                monster.healthBarePosition = [self._centeredItemX + self._stepX - 6, self._stepY - 20 - int(self.elevation[self._col][self._row]) * 20]
+                monster.draw_health_bar(screen)
+
+            # Move to the next tile in the row
+            self._stepX += 19
+            self._stepY += 10
+            self._row += 1
+
+            # Check if the end of the row or screen width is reached
+            if self._centeredItemX + self._stepX >= 800 - self._patch or self._row >= len(self.dungeon[self._col]):
+                self._patch += 19
+                self._row = self._rowTmp
+                self._col += 1
+                self._rewinderStepX -= 19
+                self._stepX = self._rewinderStepX
+                self._rewinderStepY += 10
+                self._stepY = self._rewinderStepY
+
+            # Break if we reach the end of the dungeon
+            if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
+                break
+                     
     def get_isometric_position(self, row, col):
         """
         Converts grid (row, col) to isometric screen coordinates.
