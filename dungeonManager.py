@@ -198,6 +198,25 @@ class dungeonManager(object):
         y = 150 + (row + col) * 10.5 - int(self.elevation[row][col]) * 20
         return x, y
 
+    def display_image_for_one_second(self,position):
+        """
+        Affiche une image à l'écran pendant 1 seconde.
+
+        :param screen: L'objet surface principal de Pygame
+        :param image: L'image à afficher
+        :param position: Tuple (x, y) pour la position de l'image
+        """
+        image = self._media.loadImage(os.path.join('data', 'images', 'effects', 'thunder.png'))
+        start_time = pygame.time.get_ticks()  # Obtenez le temps initial
+        duration = 1000  # Durée en millisecondes (1 seconde)
+
+        while pygame.time.get_ticks() - start_time < duration:
+            self._screen.blit(image, (position[0],position[1] - 50))
+            pygame.display.update()
+        # Calculate isometric screen coordinates
+
+        #self._screen.blit(image, (position[0], position[1] - 50))
+
 
     def play(self, attack_type, target_position, start_position=None):
         """
@@ -218,7 +237,7 @@ class dungeonManager(object):
                 pygame.display.update()
             # Calculate isometric screen coordinates
 
-            self._screen.blit(image, (target_x, target_y-50))
+            #self._screen.blit(image, (target_x, target_y-50))
 
         if attack_type == "Water Splash":
             image = self._media.loadImage(os.path.join('data', 'images', 'effects', 'water splash.png'))
@@ -233,6 +252,7 @@ class dungeonManager(object):
                 self._screen.blit(img, (target_x, target_y - 50))
                 pygame.display.update()
             #self._screen.blit(img, (target_x, target_y - 50))
+            #self._screen.blit(image, (target_x, target_y - 50))
 
         elif attack_type == "Fireball" and start_position:
             # Initialize and add the fireball animation

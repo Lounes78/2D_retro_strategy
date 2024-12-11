@@ -95,6 +95,62 @@ class Game:
         self.active_player = None  # Variable to track the active player
         self.init_positions()
 
+    def show_image_with_effects(self, image_path, duration=2000, message="Start to Dominate"):
+        """
+        Displays an image with a black transparent background, shaking effect, and a message for a specified duration.
+
+        :param image_path: Path to the image file.
+        :param duration: Duration to display the image (in milliseconds).
+        :param message: Text to display on the screen.
+        """
+        # Load the image
+        image = pygame.image.load(image_path)
+        image = pygame.transform.scale(image, (300, 300))  # Resize the image
+        image_rect = image.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2))
+
+        # Create a semi-transparent black background
+        overlay = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180))  # Black with 70% transparency
+
+        # Get the start time
+        start_time = pygame.time.get_ticks()
+
+        # Font for the message
+        font = pygame.font.Font(None, 50)  # Adjust font size
+        text_surface = font.render(message, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 150))
+
+        # Shaking parameters
+        shake_amplitude = 5
+        shake_frequency = 100  # Shake every 100ms
+
+        while True:
+            current_time = pygame.time.get_ticks()
+            if current_time - start_time > duration:
+                break  # Exit after the duration
+
+            # Handle shaking
+            shake_offset_x = shake_amplitude if (current_time // shake_frequency) % 2 == 0 else -shake_amplitude
+            shake_offset_y = shake_amplitude if (current_time // shake_frequency) % 2 == 0 else -shake_amplitude
+
+            # Draw the transparent background
+            self.screen.blit(self.background, (0, 0))  # Draw the game background
+            self.screen.blit(overlay, (0, 0))  # Draw the black transparent overlay
+
+            # Draw the image with shaking effect
+            self.screen.blit(image, (image_rect.x + shake_offset_x, image_rect.y + shake_offset_y))
+
+            # Draw the message
+            self.screen.blit(text_surface, text_rect)
+
+            pygame.display.update()  # Update the display
+
+            # Process events to avoid "Not Responding" issues
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
     def init_positions(self):
         """Initializes positions for logos, characters, and fonts."""
         self.centered_logo_x = self.window_manager.centerItemX(self.logo[self.sprite_counter])
@@ -112,6 +168,8 @@ class Game:
                 self.window_manager.centerItemY(self.font)
                 + self.window_manager.centerItemX(self.logo[self.sprite_counter]) / 4
         )
+
+            #self.dummy_counter += 1
 
     def run_hello_screen(self):
         """Displays the hello screen."""
@@ -187,6 +245,7 @@ class Game:
         self.target_position_sprite = spriteManager(self.dungeon_manager, self.media, [0, 0])
         pygame.display.update()
 
+
     def run_game_loop(self):
         """Runs the main game loop."""
         # Start with Dracko's turn
@@ -208,6 +267,7 @@ class Game:
 
 
         highlighted_positions = set()
+
         while True:
             pygame.event.pump()  # updating the events queue from the os
             key_input = pygame.key.get_pressed()
@@ -242,8 +302,8 @@ class Game:
             # unit_position = players[active_player_index].sprite_managers[current_unit_index].mapPosition
 
             # Process movement only for the active player
-            self.menu_open = active_unit.menu_open
-
+            self.menu_open = active_unit.menu_open # mode menu ou pas recuperer des que je clique sur m ca devient True
+            print(f"menu{active_unit.menu_open}")
             if not self.menu_open:
                 if players[active_player_index].is_turn():
                     if key_input[K_UP]:
@@ -261,7 +321,7 @@ class Game:
             # Update the game screen
             self.screen.blit(self.background, (0, 0))
 
-            if active_unit.attack_selected:
+            if active_unit.attack_selected: # gerer une seule tuile apres avoir choisi une attaque
                 if key_input[K_UP]:
                     self.target_position_sprite.update(1)
                 elif key_input[K_DOWN]:
@@ -273,10 +333,10 @@ class Game:
                 unit_position = self.target_position_sprite.mapPosition
 
             attack_position = active_unit.handle_attacks(key_input, self.screen,
-                                                         self.target_position_sprite.mapPosition)
+                                                         unit_position)  # ou est ce que tu as appuyé sur entrée quand tu geres une suile pour lattaque
             # print(active_unit.selected_attack)
             selected_attack = active_unit.attacks[active_unit.selected_attack]
-            # print(selected_attack)
+            print(f"selected attack{selected_attack}")
             # find the ennemy and attack it
 
             if attack_position != None:
@@ -306,11 +366,7 @@ class Game:
                         players[active_player_index].set_active(True)
                         last_turn_switch_time = current_time
 
-            # print(unit_position)
-            # print(active_unit.attack_selected) # true or false selon si on a activé un attaque,true quand mon bouge la highlighted tile
-
-            #print(unit_position)
-            #print(active_unit.attack_selected) # true or false selon si on a activé un attaque,true quand mon bouge la highlighted tile
+            
             highlighted_positions = self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected, selected_attack, players[active_player_index].played)
             # print(highlighted_positions)
             # Updates the units
@@ -343,28 +399,19 @@ class Game:
                         delay = 1000  # 1 seconds delay
                         if pygame.time.get_ticks() - sprite.removal_time > delay:
                             player.sprite_managers.remove(sprite)
-            # pygame.time.delay(2000)
-
-            # self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected, selected_attack)
+           
 
             if key_input[K_ESCAPE] or pygame.event.peek(QUIT):
                 sys.exit()
-            # cloud_positions = [[3, 4]  # Example: positions of clouds
-            # cloud_position = [0, 1]  # Logical position of the cloud
-            # cloud_image = self.media.loadImage(os.path.join('data', 'images', 'character', 'back-left-dracko.png'))
-            # cloud_image_resized = pygame.transform.scale(cloud_image, (300, 100))  # Resize to tile size
+            #self.dungeon_manager.play("Water Splash", (0,0))
+            #self.scree n.blit(self.background, (100, 0))
+            #screen = pygame.display.set_mode((800, 600))
+            #image = pygame.image.load("data/images/effects/thunder.png")  # Chargez votre image
+            #position = (200, 150)  # Position de l'image
 
-            # Draw the cloud
-
-            # self.dungeon_manager.draw_cloud(self.screen, cloud_position, cloud_image)
-
-            # Cloud image
-
-            # Call the method to draw the cloud
-            # self.dungeon_manager.draw_cloud(self.screen, cloud_position, cloud_image)
-
+            #self.dungeon_manager.display_image_for_one_second([0,0])
             pygame.display.update()
-            # self.dungeon_manager.fillDungeon_effects(cloud_position, cloud_image)
+
 
             self.poll_events_with_timeout(185)  # General delay, interruptible
 
@@ -380,6 +427,12 @@ class Game:
 
 if __name__ == "__main__":
     game = Game()
+    #buff_image = game.media.loadImage("data/images/effects/nuage.png")  # Remplacez avec le chemin correct
+    #game.run_buff_animation(buff_image, "You won a key!")
+
     game.run_hello_screen()
+    game.show_image_with_effects("data/images/background/domination_bg.png", duration=2000)
+    #game.run_hello_screen()
+
     game.load_game()
     game.run_game_loop()
