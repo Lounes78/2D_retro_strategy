@@ -17,6 +17,7 @@ class dungeonManager(object):
         self._rowTmp = 0
         self._colTmp = 0
         self._tmpAnimateSprite = 0
+
         self.fireball_group = pygame.sprite.Group()
         self.tsunami_group=pygame.sprite.Group()
 
@@ -272,7 +273,7 @@ class Fireball(pygame.sprite.Sprite):
 
         # Calculate total distance and step increments
         self.total_distance = math.sqrt((self.target_x - self.start_x) ** 2 + (self.target_y - self.start_y) ** 2)
-        self.steps = 15  # Adjust for animation smoothness
+        self.steps = 5  # Adjust for animation smoothness
         self.step_x = (self.target_x - self.start_x) / self.steps
         self.step_y = (self.target_y - self.start_y) / self.steps
 
@@ -287,7 +288,7 @@ class Fireball(pygame.sprite.Sprite):
             self.rect.center = (self.current_x, self.current_y)
 
             # Update the animation frame
-            if self.counter % 2 == 0 and self.index < len(self.images) - 1:
+            if self.counter % 1 == 0 and self.index < len(self.images) - 1:
                 self.index += 1
                 self.image = self.images[self.index]
 
@@ -375,7 +376,7 @@ class Tsunami(pygame.sprite.Sprite):
 
         # Calculate total distance and step increments
         self.total_distance = math.sqrt((self.target_x - self.start_x) ** 2 + (self.target_y - self.start_y) ** 2)
-        self.steps = 15  # Adjust for animation smoothness
+        self.steps = 5  # Adjust for animation smoothness
         self.step_x = (self.target_x - self.start_x) / self.steps
         self.step_y = (self.target_y - self.start_y) / self.steps
 
@@ -390,7 +391,7 @@ class Tsunami(pygame.sprite.Sprite):
             self.rect.center = (self.current_x, self.current_y)
 
             # Update the animation frame
-            if self.counter % 2 == 0 and self.index < len(self.images) - 1:
+            if self.counter % 1 == 0 and self.index < len(self.images) - 1:
                 self.index += 1
                 self.image = self.images[self.index]
 
