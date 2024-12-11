@@ -63,7 +63,7 @@ class dungeonManager(object):
 
 
 
-    def fillDungeon_tiles(self, unit_positions, target_position = False,selected_attack=None):
+    def fillDungeon_tiles(self, unit_positions, target_position = False,selected_attack=None, played=False):
         """Render only the tiles of the dungeon."""
         self._stepX = 0 # en pixel
         self._stepY = 150
@@ -76,14 +76,19 @@ class dungeonManager(object):
         self._centeredItemX = self._windowManager.centerItemX(self._dict[self.dungeon[self._col][self._row]]) + 20
                         
         highlight_positions = set()
-        row, col = unit_positions
-        if not target_position:
-            for dr in [-2, -1, 0,1,2]:
-                for dc in [-2, -1, 0,1,2]:
-                    if abs(dr) + abs(dc) <= 2:  # Limit to a radius of 2 tiles
-                        highlight_positions.add((row + dr, col + dc))
-        else:
-            highlight_positions.add((row, col))
+        if played == 0:    
+            row, col = unit_positions
+            if not target_position:
+                for dr in [-2, -1, 0,1,2]:
+                    for dc in [-2, -1, 0,1,2]:
+                        if abs(dr) + abs(dc) <= 2:  # Limit to a radius of 2 tiles
+                            highlight_positions.add((row + dr, col + dc))
+            else:
+                highlight_positions.add((row, col))
+            self.previous_highlight_positions = highlight_positions
+
+        else: # utiliser le highlighte_positions precedent
+            highlight_positions = self.previous_highlight_positions
         
         while True:# boucle pour l'affiche en iso
             current_position = (self._col, self._row)
@@ -96,11 +101,10 @@ class dungeonManager(object):
                 else:
                     self._screen.blit(self._dict["R"], (
                     self._centeredItemX + self._stepX, self._stepY - int(self.elevation[self._col][self._row]) * 20))
+                    
                     if selected_attack=="Thunder Strike":
-                        # Example usage in your game loop
                         image = self._media.loadImage(os.path.join('data', 'images', 'effects', 'thunder.png'))
                         #self.play(selected_attack, current_position, image)
-
                         self._screen.blit(self._dict["C"], (self._centeredItemX + self._stepX + 10,
                                                         self._stepY-40 - int(self.elevation[self._col][self._row]) * 30))
 
@@ -133,7 +137,8 @@ class dungeonManager(object):
 
                 if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
                     break
-
+                
+        return highlight_positions
 
 
         
@@ -150,7 +155,6 @@ class dungeonManager(object):
 
         while True:
             # Sprite rendering
-
             if sprite and sprite.mapPosition == [self._col, self._row]:
                 self._screen.blit(
                     sprite.sprite[sprite._tmpAnimateSprite],
@@ -188,7 +192,7 @@ class dungeonManager(object):
         """
         base_tile = self._dict[self.dungeon[row][col]]
         centered_x = self._windowManager.centerItemX(base_tile) + 20
-        x = centered_x + (col - row) * 19.5  # Use float for better alignment
+        x = centered_x + (col - row) * 19.5  
         y = 150 + (row + col) * 10.5 - int(self.elevation[row][col]) * 20
         return x, y
 

@@ -12,6 +12,8 @@ class spriteManager(object):
         self.cursor_target_position = []
         self.target_position = None
         
+        self.max_move = 2
+        
         self.max_health = 100
         self.health = 100
         self.healthBarePosition = [30, 20]
