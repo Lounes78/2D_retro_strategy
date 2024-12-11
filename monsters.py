@@ -88,9 +88,9 @@ class ThunderMonster(spriteManager):
 
 def create_monsters(dungeon, media):
     monsters = [
-        WaterMonster(dungeon, media, [3,1]),
-        IceMonster(dungeon, media, [3, 6]),
-        ThunderMonster(dungeon, media, [3, 10]),
-        FireMonster(dungeon, media, [4, 4]),
+        WaterMonster(dungeon, media, [4, 15]),
+        IceMonster(dungeon, media, [6, 15]),
+        ThunderMonster(dungeon, media, [8, 15]),
+        FireMonster(dungeon, media, [10, 15]),
     ]
     return monsters

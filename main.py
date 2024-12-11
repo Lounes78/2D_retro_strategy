@@ -22,7 +22,7 @@ class Player():
         self.played = 0 # False
         self.sprite_managers = sprite_managers if sprite_managers else []  # List of unit sprite managers
         self.is_active = False
-        self.score=0
+        self.score = 0
     def take_turn(self, action, unit_index, highlighted_positions, active_unit_mapPosition):
         if unit_index < len(self.sprite_managers):
             if action == 0: 
@@ -68,7 +68,7 @@ class Game:
     def __init__(self):
         pygame.init()
         # self.highlighted_positions = set()
-        self.new_zone_position = None
+        self.n_winning_units = 0
         self.add_zone = False # Check if we should add a zone
         self.already_occupied = []
         self.target_position = []
@@ -106,12 +106,12 @@ class Game:
         # Score du joueur 1
         player1_score_text = f"{self.dracko_player.name}: {self.dracko_player.score}"
         player1_surface = font.render(player1_score_text, True, (255, 255, 255))
-        self.screen.blit(player1_surface, (600, 0))  # Position en haut à gauche
+        self.screen.blit(player1_surface, (550, 0))  # Position en haut à gauche
         
         # Score du joueur 2
         player2_score_text = f"{self.second_player.name}: {self.second_player.score}"
         player2_surface = font.render(player2_score_text, True, (255, 255, 255))
-        self.screen.blit(player2_surface, (600, 20))  # En dessous du score du joueur 1
+        self.screen.blit(player2_surface, (550, 20))  # En dessous du score du joueur 1
 
     def show_image_with_effects(self, image_path, duration=2000, message="Start to Dominate"):
         """
@@ -272,49 +272,63 @@ class Game:
         
         
         
-    def handle_zone(self, key_input, players):
+    def handle_zone(self, players, new_zone_position=None):        
+        # Updating the map if necessary
+        if self.add_zone == True:
+            self.add_zone = False
+            if new_zone_position is not None and new_zone_position not in self.already_occupied:
+                self.map = update_map(self.file_path, self.map, 'N', new_zone_position, self.already_occupied, distance=2)
+                self.dungeon_manager.recordDungeon(self.map)
+                self.already_occupied.append(new_zone_position)
+
         for zone_position in self.already_occupied:
             zone_x, zone_y = zone_position
+            flag1 = False
+            flag2 = False
+            
             for player in players:
                 for unit in player.sprite_managers:
                     unit_x, unit_y = unit.mapPosition
-                    
+            
                     if player.name == "Dracko":
                         distance_x = abs(unit_x - zone_x)
                         distance_y = abs(unit_y - zone_y)
-                        flag1 = distance_x <= 2 and distance_y <= 2
-                        flag2 = False
+                        # if flag1 == False:
+                        flag1 = flag1 or distance_x <= 2 and distance_y <= 2
+                        
                     
                     elif player.name == "Second Player":
                         distance_x = abs(unit_x - zone_x)
                         distance_y = abs(unit_y - zone_y)
-                        flag2 = distance_x <= 2 and distance_y <= 2
-                    
-                    if flag1 and flag2: # Give the correct color to the zone and start / restart the score
-                        self.map = update_map(self.file_path, self.map, 'N', self.already_occupied[0], self.already_occupied, distance=2)
-                        self.dungeon_manager.recordDungeon(self.map)
-                    elif flag1:
-                        self.map = update_map(self.file_path, self.map, 'L', self.already_occupied[0], self.already_occupied, distance=2)
-                        self.dungeon_manager.recordDungeon(self.map)
-                    elif flag2:
-                            self.map = update_map(self.file_path, self.map, 'Q', self.already_occupied[0], self.already_occupied, distance=2)
-                            self.dungeon_manager.recordDungeon(self.map)
-                    
-                    
-                    
-                        # print(f"unit {unit_x, unit_y} is close to zone {zone_x, zone_y}")
-
-        if key_input[K_n]:
-            self.add_zone = True
-            self.new_zone_position = (20, 10)
-
-        # Updating the map if necessary
-        if self.add_zone == True:
-            self.add_zone = False
-            if self.new_zone_position is not None and self.new_zone_position not in self.already_occupied:
-                self.map = update_map(self.file_path, self.map, 'N', self.new_zone_position, self.already_occupied, distance=2)
+                        # if flag2 == False:
+                        flag2 = flag2 or distance_x <= 2 and distance_y <= 2
+            
+            # print(flag1, flag2)
+            if flag1 == flag2: # Give the correct color to the zone and start / restart the score
+                updated_map = update_map(self.file_path, self.map, 'N', zone_position, self.already_occupied, distance=2)
                 self.dungeon_manager.recordDungeon(self.map)
-                self.already_occupied.append(self.new_zone_position)
+                if flag1 and flag2: # Both players are close to the zone so MINUS 1 point for each at each iteration
+                    for player in players:
+                        player.score -= 1
+            elif flag1:
+                updated_map = update_map(self.file_path, self.map, 'L', zone_position, self.already_occupied, distance=2)
+                self.dungeon_manager.recordDungeon(self.map)
+                players[0].score += 5
+                # return 1
+            elif flag2: 
+                updated_map = update_map(self.file_path, self.map, 'Q', zone_position, self.already_occupied, distance=2)
+                players[1].score += 5
+
+            self.map = updated_map
+            self.dungeon_manager.recordDungeon(self.map)
+
+                # return 2
+        # print("\n")
+        # print(f"unit {unit_x, unit_y} is close to zone {zone_x, zone_y}")
+
+
+
+
 
 
 
@@ -340,7 +354,8 @@ class Game:
 
         highlighted_positions = set()
         
-
+        new_zone_position = None
+        
         while True:
             pygame.event.pump()  # updating the events queue from the os
             key_input = pygame.key.get_pressed()
@@ -351,8 +366,23 @@ class Game:
 
 
             # Handle zone things
-            self.handle_zone(key_input, players)
+            score_to_add_new_zone = 200
+            if players[0].score >= score_to_add_new_zone or players[1].score >= score_to_add_new_zone:
+                self.add_zone = True
+                new_zone_position = (15, 14)
+            to_increment = self.handle_zone(players, new_zone_position)
+            # print(to_increment)
+            if to_increment == 1:
+                players[0].score += 5
+            elif to_increment == 2:
+                players[1].score += 5
+            elif to_increment == 0:
+                players[0].score -= 1
+                players[1].score -= 1
+            
 
+            
+            
             # Handle unit switching within the active player
             if key_input[K_TAB]:
                 current_unit_index = (current_unit_index + 1) % len(players[active_player_index].sprite_managers)
@@ -453,7 +483,7 @@ class Game:
                         if not monster.is_alive()and not monster.marked_for_removal:
                             monster.marked_for_removal = True
                             monster.removal_time = pygame.time.get_ticks()
-                            players[active_player_index].score += 1
+                            players[active_player_index].score += 500
                             #self.monsters.remove(monster)
                         players[active_player_index].played = 0
                         players[active_player_index].set_active(False)
