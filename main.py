@@ -163,16 +163,16 @@ class Game:
         self.screen.blit(self.background, (0, 0))
 
         # Create units for each player with unique media instances
-        dracko_units = [spriteManager(self.dungeon_manager, self.media, [0, 3 * i]) for i in range(4)]
-        second_character_units = [spriteManager(self.dungeon_manager, self.media, [10, 3 * i]) for i in range(4)]
+        #dracko_units = [spriteManager(self.dungeon_manager, self.media, [0, 3 * i]) for i in range(4)]
+        #second_character_units = [spriteManager(self.dungeon_manager, self.media, [10, 3 * i]) for i in range(4)]
 
 
-        """# Create units for each player with unique media instances
+        # Create units for each player with unique media instances
         all_characters = create_characters(self.dungeon_manager, self.media)
         # Player 1 gets the first 4 characters
         dracko_units = all_characters[:4]
         # Player 2 gets the next 4 characters
-        second_character_units = all_characters[4:]"""
+        second_character_units = all_characters[4:]
 
 
         # Initialize players with their respective units
