@@ -2,7 +2,7 @@ import os
 import sys
 import pygame
 from pygame.locals import *
-
+from monsters import *
 from mediaManager import *
 from windowManager import *
 from dungeonManager import *
@@ -22,7 +22,7 @@ class Player():
         self.played = 0 # False
         self.sprite_managers = sprite_managers if sprite_managers else []  # List of unit sprite managers
         self.is_active = False
-    
+        self.score=0
     def take_turn(self, action, unit_index, highlighted_positions, active_unit_mapPosition):
         if unit_index < len(self.sprite_managers):
             if action == 0: 
@@ -97,7 +97,21 @@ class Game:
         self.second_character = None
         self.dungeon_manager = None
         self.active_player = None  # Variable to track the active player
+        self.monsters=[]
         self.init_positions()
+    def display_scores(self):
+        """Affiche les scores de chaque joueur à l'écran."""
+        font = pygame.font.SysFont("Courier New", 20)
+        
+        # Score du joueur 1
+        player1_score_text = f"{self.dracko_player.name}: {self.dracko_player.score}"
+        player1_surface = font.render(player1_score_text, True, (255, 255, 255))
+        self.screen.blit(player1_surface, (600, 0))  # Position en haut à gauche
+        
+        # Score du joueur 2
+        player2_score_text = f"{self.second_player.name}: {self.second_player.score}"
+        player2_surface = font.render(player2_score_text, True, (255, 255, 255))
+        self.screen.blit(player2_surface, (600, 20))  # En dessous du score du joueur 1
 
     def show_image_with_effects(self, image_path, duration=2000, message="Start to Dominate"):
         """
@@ -175,6 +189,7 @@ class Game:
 
             #self.dummy_counter += 1
 
+   
     def run_hello_screen(self):
         """Displays the hello screen."""
         while True:
@@ -230,16 +245,15 @@ class Game:
         tilde_file = self.media.loadReadFile(os.path.join('data', 'maps', 'tiles.txt'))
         # dungeon_file = self.media.loadReadFile(os.path.join('data', 'maps', 'firstDungeon.txt'))
         nw_tiles = self.media.loadReadFile(os.path.join('data', 'maps', 'tiles.txt'))
-
+        #self.init_monsters()
         self.dungeon_manager = dungeonManager(self.media, self.window_manager, self.screen)
         self.dungeon_manager.recordNonWalkableTiles(nw_tiles)
         self.dungeon_manager.recordTiles(tilde_file)
         self.dungeon_manager.recordDungeon(self.map)
         self.screen.blit(self.background, (0, 0))
-
-        # Create units for each player with unique media instances
-        # dracko_units = [spriteManager(self.dungeon_manager, self.media, [0, 3 * i]) for i in range(4)]
-        # second_character_units = [spriteManager(self.dungeon_manager, self.media, [10, 3 * i]) for i in range(4)]
+        #init monsters
+        self.monsters = create_monsters(self.dungeon_manager, self.media)
+        #init units
         all_characters = create_characters(self.dungeon_manager, self.media)
         # Player 1 gets the first 4 characters
         dracko_units = all_characters[:4]
@@ -383,6 +397,8 @@ class Game:
 
             # Update the game screen
             self.screen.blit(self.background, (0, 0))
+            #for monster in self.monsters:
+                #monster.draw(self.screen)
 
             if active_unit.attack_selected: # gerer une seule tuile apres avoir choisi une attaque
                 if key_input[K_UP]:
@@ -402,24 +418,25 @@ class Game:
             # find the ennemy and attack it
 
             if attack_position != None:
+                attack_animation_playing = True
+                attack_animation_position = attack_position
+                attack_animation_type = selected_attack
+                attack_animation_start_position = active_unit.mapPosition
+                animation_start_time = pygame.time.get_ticks()
                 for enemy_sprite in players[not (active_player_index)].sprite_managers:
                     if enemy_sprite.mapPosition == attack_position:
                         # print(f"this is the {attack_position}")
 
                         damage = 30  # par exemple
 
-                        attack_animation_playing = True
-                        attack_animation_position = attack_position
-                        attack_animation_type = selected_attack
-                        attack_animation_start_position = active_unit.mapPosition
-                        animation_start_time = pygame.time.get_ticks()
+                        
                         #animation_duration = 1000
                         active_unit.perform_attack(damage, enemy_sprite)
 
                         if not enemy_sprite.is_alive() and not enemy_sprite.marked_for_removal:
                             enemy_sprite.marked_for_removal = True
                             enemy_sprite.removal_time = pygame.time.get_ticks()
-
+                            #players[active_player_index].score += 1
 
                         #change the player once attacked
                         players[active_player_index].played = 0
@@ -427,6 +444,24 @@ class Game:
                         active_player_index = (active_player_index + 1) % len(players)
                         players[active_player_index].set_active(True)
                         last_turn_switch_time = current_time
+                for monster in self.monsters[:]:
+                    
+                    if monster.mapPosition == attack_position:
+                        damage=30
+                        #attack_animation_playing = True
+                        active_unit.perform_attack(damage, monster)
+                        if not monster.is_alive()and not monster.marked_for_removal:
+                            monster.marked_for_removal = True
+                            monster.removal_time = pygame.time.get_ticks()
+                            players[active_player_index].score += 1
+                            #self.monsters.remove(monster)
+                        players[active_player_index].played = 0
+                        players[active_player_index].set_active(False)
+                        active_player_index = (active_player_index + 1) % len(players)
+                        players[active_player_index].set_active(True)
+                        last_turn_switch_time = current_time
+                            # Increment player score
+                            #players[active_player_index].score += 1
 
             
             highlighted_positions = self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected, selected_attack, players[active_player_index].played)
@@ -435,6 +470,8 @@ class Game:
             for player in players:
                 for sprite in player.sprite_managers:
                     sprite.dungeon.fillDungeon_sprites(sprite, sprite == active_unit, self.screen)
+            for monster in self.monsters:
+                self.dungeon_manager.fillDungeon_monsters(monster, self.screen)
 
             if attack_animation_playing:
                 if attack_animation_type == "Thunder Strike":
@@ -461,7 +498,10 @@ class Game:
                         delay = 1000  # 1 seconds delay
                         if pygame.time.get_ticks() - sprite.removal_time > delay:
                             player.sprite_managers.remove(sprite)
-           
+            for monster in self.monsters[:]:
+                if monster.marked_for_removal and pygame.time.get_ticks() - monster.removal_time > 500:
+                    self.monsters.remove(monster)
+            self.display_scores()
 
             if key_input[K_ESCAPE] or pygame.event.peek(QUIT):
                 # update_map(self.file_path, None, '*', (8, 10), distance=2)
