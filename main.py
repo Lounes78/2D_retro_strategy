@@ -8,10 +8,11 @@ from windowManager import *
 from dungeonManager import *
 from spriteManager import *
 from HerosGenerator import *
-
+from utils import *
 
 
 current_turn = 0  # 0 for player 1 and 1 for player 2
+
 
 
 class Player():
@@ -21,7 +22,7 @@ class Player():
         self.played = 0 # False
         self.sprite_managers = sprite_managers if sprite_managers else []  # List of unit sprite managers
         self.is_active = False
-        self.score=0
+        self.score = 0
     def take_turn(self, action, unit_index, highlighted_positions, active_unit_mapPosition):
         if unit_index < len(self.sprite_managers):
             if action == 0: 
@@ -67,6 +68,9 @@ class Game:
     def __init__(self):
         pygame.init()
         # self.highlighted_positions = set()
+        self.n_winning_units = 0
+        self.add_zone = False # Check if we should add a zone
+        self.already_occupied = []
         self.target_position = []
         self.menu_open = False
         self.screen = pygame.display.set_mode((800, 600))
@@ -102,12 +106,12 @@ class Game:
         # Score du joueur 1
         player1_score_text = f"{self.dracko_player.name}: {self.dracko_player.score}"
         player1_surface = font.render(player1_score_text, True, (255, 255, 255))
-        self.screen.blit(player1_surface, (600, 0))  # Position en haut à gauche
+        self.screen.blit(player1_surface, (550, 0))  # Position en haut à gauche
         
         # Score du joueur 2
         player2_score_text = f"{self.second_player.name}: {self.second_player.score}"
         player2_surface = font.render(player2_score_text, True, (255, 255, 255))
-        self.screen.blit(player2_surface, (600, 20))  # En dessous du score du joueur 1
+        self.screen.blit(player2_surface, (550, 20))  # En dessous du score du joueur 1
 
     def show_image_with_effects(self, image_path, duration=2000, message="Start to Dominate"):
         """
@@ -124,7 +128,7 @@ class Game:
 
         # Create a semi-transparent black background
         overlay = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 180))  # Black with 70% transparency
+        overlay.fill((0, 0, 0, 180)) 
 
         # Get the start time
         start_time = pygame.time.get_ticks()
@@ -232,15 +236,20 @@ class Game:
         self.sound.music.stop()
         self.sound = self.media.loadSound(os.path.join('data', 'music', 'bjorn__lynne-_the_long_journey_home.mid'))
         # self.sound.music.play(-1)
-
+        
+        # Initial version of the map
+        self.file_path = "data/maps/firstDungeon.txt"
+        self.flag_initial_position = (5, 7)
+        self.already_occupied.append(self.flag_initial_position)
+        self.map = update_map(self.file_path, None, 'N', self.flag_initial_position, [], distance=2)
         tilde_file = self.media.loadReadFile(os.path.join('data', 'maps', 'tiles.txt'))
-        dungeon_file = self.media.loadReadFile(os.path.join('data', 'maps', 'firstDungeon.txt'))
+        # dungeon_file = self.media.loadReadFile(os.path.join('data', 'maps', 'firstDungeon.txt'))
         nw_tiles = self.media.loadReadFile(os.path.join('data', 'maps', 'tiles.txt'))
         #self.init_monsters()
         self.dungeon_manager = dungeonManager(self.media, self.window_manager, self.screen)
         self.dungeon_manager.recordNonWalkableTiles(nw_tiles)
         self.dungeon_manager.recordTiles(tilde_file)
-        self.dungeon_manager.recordDungeon(dungeon_file)
+        self.dungeon_manager.recordDungeon(self.map)
         self.screen.blit(self.background, (0, 0))
         #init monsters
         self.monsters = create_monsters(self.dungeon_manager, self.media)
@@ -257,7 +266,70 @@ class Game:
 
         # highlighted target position
         self.target_position_sprite = spriteManager(self.dungeon_manager, self.media, [0, 0])
+        
         pygame.display.update()
+        
+        
+        
+        
+    def handle_zone(self, players, new_zone_position=None):        
+        # Updating the map if necessary
+        if self.add_zone == True:
+            self.add_zone = False
+            if new_zone_position is not None and new_zone_position not in self.already_occupied:
+                self.map = update_map(self.file_path, self.map, 'N', new_zone_position, self.already_occupied, distance=2)
+                self.dungeon_manager.recordDungeon(self.map)
+                self.already_occupied.append(new_zone_position)
+
+        for zone_position in self.already_occupied:
+            zone_x, zone_y = zone_position
+            flag1 = False
+            flag2 = False
+            
+            for player in players:
+                for unit in player.sprite_managers:
+                    unit_x, unit_y = unit.mapPosition
+            
+                    if player.name == "Dracko":
+                        distance_x = abs(unit_x - zone_x)
+                        distance_y = abs(unit_y - zone_y)
+                        # if flag1 == False:
+                        flag1 = flag1 or distance_x <= 2 and distance_y <= 2
+                        
+                    
+                    elif player.name == "Second Player":
+                        distance_x = abs(unit_x - zone_x)
+                        distance_y = abs(unit_y - zone_y)
+                        # if flag2 == False:
+                        flag2 = flag2 or distance_x <= 2 and distance_y <= 2
+            
+            # print(flag1, flag2)
+            if flag1 == flag2: # Give the correct color to the zone and start / restart the score
+                updated_map = update_map(self.file_path, self.map, 'N', zone_position, self.already_occupied, distance=2)
+                self.dungeon_manager.recordDungeon(self.map)
+                if flag1 and flag2: # Both players are close to the zone so MINUS 1 point for each at each iteration
+                    for player in players:
+                        player.score -= 1
+            elif flag1:
+                updated_map = update_map(self.file_path, self.map, 'L', zone_position, self.already_occupied, distance=2)
+                self.dungeon_manager.recordDungeon(self.map)
+                players[0].score += 5
+                # return 1
+            elif flag2: 
+                updated_map = update_map(self.file_path, self.map, 'Q', zone_position, self.already_occupied, distance=2)
+                players[1].score += 5
+
+            self.map = updated_map
+            self.dungeon_manager.recordDungeon(self.map)
+
+                # return 2
+        # print("\n")
+        # print(f"unit {unit_x, unit_y} is close to zone {zone_x, zone_y}")
+
+
+
+
+
 
 
     def run_game_loop(self):
@@ -281,15 +353,28 @@ class Game:
 
 
         highlighted_positions = set()
-
+        
+        new_zone_position = None
+        
         while True:
             pygame.event.pump()  # updating the events queue from the os
             key_input = pygame.key.get_pressed()
 
-            # Get the current time
             current_time = pygame.time.get_ticks()
-            print(current_time)
+            # print(current_time)
 
+
+
+            # Handle zone things
+            score_to_add_new_zone = 200
+            if players[0].score >= score_to_add_new_zone or players[1].score >= score_to_add_new_zone:
+                self.add_zone = True
+                new_zone_position = (15, 14)
+            self.handle_zone(players, new_zone_position)
+
+
+            
+            
             # Handle unit switching within the active player
             if key_input[K_TAB]:
                 current_unit_index = (current_unit_index + 1) % len(players[active_player_index].sprite_managers)
@@ -317,7 +402,7 @@ class Game:
 
             # Process movement only for the active player
             self.menu_open = active_unit.menu_open # mode menu ou pas recuperer des que je clique sur m ca devient True
-            print(f"menu{active_unit.menu_open}")
+            # print(f"menu{active_unit.menu_open}")
             if not self.menu_open:
                 if players[active_player_index].is_turn():
                     if key_input[K_UP]:
@@ -348,11 +433,10 @@ class Game:
                     self.target_position_sprite.update(4)
                 unit_position = self.target_position_sprite.mapPosition
 
-            attack_position = active_unit.handle_attacks(key_input, self.screen,
-                                                         unit_position)  # ou est ce que tu as appuyé sur entrée quand tu geres une suile pour lattaque
+            attack_position = active_unit.handle_attacks(key_input, self.screen, unit_position)  # ou est ce que tu as appuyé sur entrée quand tu geres une suile pour lattaque
             # print(active_unit.selected_attack)
             selected_attack = active_unit.attacks[active_unit.selected_attack]
-            print(f"selected attack{selected_attack}")
+            # print(f"selected attack{selected_attack}")
             # find the ennemy and attack it
 
             if attack_position != None:
@@ -363,7 +447,7 @@ class Game:
                 animation_start_time = pygame.time.get_ticks()
                 for enemy_sprite in players[not (active_player_index)].sprite_managers:
                     if enemy_sprite.mapPosition == attack_position:
-                        print(f"this is the {attack_position}")
+                        # print(f"this is the {attack_position}")
 
                         damage = 30  # par exemple
 
@@ -391,7 +475,7 @@ class Game:
                         if not monster.is_alive()and not monster.marked_for_removal:
                             monster.marked_for_removal = True
                             monster.removal_time = pygame.time.get_ticks()
-                            players[active_player_index].score += 1
+                            players[active_player_index].score += 500
                             #self.monsters.remove(monster)
                         players[active_player_index].played = 0
                         players[active_player_index].set_active(False)
@@ -449,6 +533,7 @@ class Game:
             self.display_scores()
 
             if key_input[K_ESCAPE] or pygame.event.peek(QUIT):
+                # update_map(self.file_path, None, '*', (8, 10), distance=2)
                 sys.exit()
             #self.dungeon_manager.play("Water Splash", (0,0))
             #self.scree n.blit(self.background, (100, 0))
@@ -472,13 +557,15 @@ class Game:
             pygame.time.wait(1)  # Small wait to avoid busy-waiting
 
 
+
+
 if __name__ == "__main__":
     game = Game()
-    #buff_image = game.media.loadImage("data/images/effects/nuage.png")  # Remplacez avec le chemin correct
+    #buff_image = game.media.loadImage("data/images/effects/nuage.png") 
     #game.run_buff_animation(buff_image, "You won a key!")
 
     game.run_hello_screen()
-    game.show_image_with_effects("data/images/background/domination_bg.png", duration=2000)
+    game.show_image_with_effects("data/images/background/domination_bg.png", duration=500)
     #game.run_hello_screen()
 
     game.load_game()
