@@ -370,16 +370,8 @@ class Game:
             if players[0].score >= score_to_add_new_zone or players[1].score >= score_to_add_new_zone:
                 self.add_zone = True
                 new_zone_position = (15, 14)
-            to_increment = self.handle_zone(players, new_zone_position)
-            # print(to_increment)
-            if to_increment == 1:
-                players[0].score += 5
-            elif to_increment == 2:
-                players[1].score += 5
-            elif to_increment == 0:
-                players[0].score -= 1
-                players[1].score -= 1
-            
+            self.handle_zone(players, new_zone_position)
+
 
             
             

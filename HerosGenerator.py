@@ -12,8 +12,6 @@ class WaterSprite(spriteManager):
         self.attacks = ["Water Splash", "Tsunami Wave"]  # 普通攻击 + 独特技能
 
 
-    
-
     def perform_special_attack(self, target):
         print(f"{self.name} unleashes a {self.attacks[1]} at {target.mapPosition}!")
         target.take_damage(40)  # 独特技能造成 40 点伤害
