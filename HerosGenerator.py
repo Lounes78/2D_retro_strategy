@@ -63,20 +63,19 @@ class ThunderSprite(spriteManager):
 def create_characters(dungeon, media):
     characters = []
 
-    # 水属性角色
-    characters.append(WaterSprite(dungeon, media, [0, 0], "Aqua Warrior"))
-    characters.append(WaterSprite(dungeon, media, [0, 3], "Wave Rider"))
+    # the heros of first group
+    characters.append(WaterSprite(dungeon, media, [0, 0], "Aqua Warrior")) #eau
+    characters.append(FireSprite(dungeon, media, [0, 2], "Flame Knight")) #feu
+    characters.append(IceSprite(dungeon, media, [0, 4], "Frost Guardian")) #ice
+    characters.append(ThunderSprite(dungeon, media, [0, 6], "Storm Hunter")) #thunder
 
-    # 火属性角色
-    characters.append(FireSprite(dungeon, media, [5, 0], "Flame Knight"))
-    characters.append(FireSprite(dungeon, media, [5, 3], "Blaze Mage"))
-
-    # 冰属性角色
-    characters.append(IceSprite(dungeon, media, [10, 0], "Frost Guardian"))
-    characters.append(IceSprite(dungeon, media, [10, 3], "Snow Sorcerer"))
-
-    # 雷属性角色
-    characters.append(ThunderSprite(dungeon, media, [15, 0], "Storm Hunter"))
-    characters.append(ThunderSprite(dungeon, media, [15, 3], "Lightning Avenger"))
+    # the heros in the second group
+    characters.append(WaterSprite(dungeon, media, [20, 0], "Wave Rider"))
+    characters.append(FireSprite(dungeon, media, [20, 2], "Blaze Mage"))
+    characters.append(IceSprite(dungeon, media, [20, 4], "Snow Sorcerer"))
+    characters.append(ThunderSprite(dungeon, media, [20, 6], "Lightning Avenger"))
 
     return characters
+
+
+
