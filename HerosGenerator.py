@@ -4,7 +4,7 @@ import pygame
 from pygame.locals import *
 from spriteManager import spriteManager  # 引用父类
 
-# 定义水属性子类
+# define the son class of water
 class WaterSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
         super().__init__(dungeon, media, mapPosition)
@@ -16,7 +16,7 @@ class WaterSprite(spriteManager):
         target.take_damage(40)  # 独特技能造成 40 点伤害
 
 
-# 定义火属性子类
+# define the son class of fire
 class FireSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
         super().__init__(dungeon, media, mapPosition)
@@ -29,7 +29,7 @@ class FireSprite(spriteManager):
         target.apply_status_effect("Burn", 3)
 
 
-# 定义冰属性子类
+# define the son class of ice
 class IceSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
         super().__init__(dungeon, media, mapPosition)
@@ -45,7 +45,7 @@ class IceSprite(spriteManager):
         print(f"{self.name}'s target is frozen and loses their next turn!")
 
 
-# 定义雷属性子类
+# define the son class of thunder
 class ThunderSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
         super().__init__(dungeon, media, mapPosition)
