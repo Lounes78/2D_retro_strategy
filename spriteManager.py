@@ -14,6 +14,7 @@ class spriteManager(object):
         
         self.max_move = 2
         
+        self.marked_for_removal = False
         self.max_health = 100
         self.health = 100
         self.healthBarePosition = [30, 20]
