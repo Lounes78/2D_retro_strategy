@@ -8,10 +8,11 @@ from windowManager import *
 from dungeonManager import *
 from spriteManager import *
 from HerosGenerator import *
-
+from utils import *
 
 
 current_turn = 0  # 0 for player 1 and 1 for player 2
+
 
 
 class Player():
@@ -67,6 +68,8 @@ class Game:
     def __init__(self):
         pygame.init()
         # self.highlighted_positions = set()
+        self.add_zone = False # Check if we should add a zone
+        self.already_occupied = []
         self.target_position = []
         self.menu_open = False
         self.screen = pygame.display.set_mode((800, 600))
@@ -217,15 +220,20 @@ class Game:
         self.sound.music.stop()
         self.sound = self.media.loadSound(os.path.join('data', 'music', 'bjorn__lynne-_the_long_journey_home.mid'))
         # self.sound.music.play(-1)
-
+        
+        # Initial version of the map
+        self.file_path = "data/maps/firstDungeon.txt"
+        self.flag_initial_position = (10, 17)
+        self.already_occupied.append(self.flag_initial_position)
+        self.map = update_map(self.file_path, None, 'N', self.flag_initial_position, [], distance=2)
         tilde_file = self.media.loadReadFile(os.path.join('data', 'maps', 'tiles.txt'))
-        dungeon_file = self.media.loadReadFile(os.path.join('data', 'maps', 'firstDungeon.txt'))
+        # dungeon_file = self.media.loadReadFile(os.path.join('data', 'maps', 'firstDungeon.txt'))
         nw_tiles = self.media.loadReadFile(os.path.join('data', 'maps', 'tiles.txt'))
 
         self.dungeon_manager = dungeonManager(self.media, self.window_manager, self.screen)
         self.dungeon_manager.recordNonWalkableTiles(nw_tiles)
         self.dungeon_manager.recordTiles(tilde_file)
-        self.dungeon_manager.recordDungeon(dungeon_file)
+        self.dungeon_manager.recordDungeon(self.map)
         self.screen.blit(self.background, (0, 0))
 
         # Create units for each player with unique media instances
@@ -243,6 +251,10 @@ class Game:
 
         # highlighted target position
         self.target_position_sprite = spriteManager(self.dungeon_manager, self.media, [0, 0])
+        
+
+        
+        
         pygame.display.update()
 
 
@@ -267,14 +279,27 @@ class Game:
 
 
         highlighted_positions = set()
+        new_zone_position = None
 
         while True:
             pygame.event.pump()  # updating the events queue from the os
             key_input = pygame.key.get_pressed()
 
-            # Get the current time
             current_time = pygame.time.get_ticks()
-            print(current_time)
+            # print(current_time)
+
+            if key_input[K_n]:
+                self.add_zone = True
+                new_zone_position = (10, 4)
+
+            # Updating the map if necessary
+            if self.add_zone == True:
+                self.add_zone = False
+                if new_zone_position is not None and new_zone_position not in self.already_occupied:
+                    self.map = update_map(self.file_path, self.map, 'N', new_zone_position, self.already_occupied, distance=2)
+                    self.dungeon_manager.recordDungeon(self.map)
+                    self.already_occupied.append(new_zone_position)
+
 
             # Handle unit switching within the active player
             if key_input[K_TAB]:
@@ -303,7 +328,7 @@ class Game:
 
             # Process movement only for the active player
             self.menu_open = active_unit.menu_open # mode menu ou pas recuperer des que je clique sur m ca devient True
-            print(f"menu{active_unit.menu_open}")
+            # print(f"menu{active_unit.menu_open}")
             if not self.menu_open:
                 if players[active_player_index].is_turn():
                     if key_input[K_UP]:
@@ -332,17 +357,16 @@ class Game:
                     self.target_position_sprite.update(4)
                 unit_position = self.target_position_sprite.mapPosition
 
-            attack_position = active_unit.handle_attacks(key_input, self.screen,
-                                                         unit_position)  # ou est ce que tu as appuyé sur entrée quand tu geres une suile pour lattaque
+            attack_position = active_unit.handle_attacks(key_input, self.screen, unit_position)  # ou est ce que tu as appuyé sur entrée quand tu geres une suile pour lattaque
             # print(active_unit.selected_attack)
             selected_attack = active_unit.attacks[active_unit.selected_attack]
-            print(f"selected attack{selected_attack}")
+            # print(f"selected attack{selected_attack}")
             # find the ennemy and attack it
 
             if attack_position != None:
                 for enemy_sprite in players[not (active_player_index)].sprite_managers:
                     if enemy_sprite.mapPosition == attack_position:
-                        print(f"this is the {attack_position}")
+                        # print(f"this is the {attack_position}")
 
                         damage = 30  # par exemple
 
@@ -402,6 +426,7 @@ class Game:
            
 
             if key_input[K_ESCAPE] or pygame.event.peek(QUIT):
+                # update_map(self.file_path, None, '*', (8, 10), distance=2)
                 sys.exit()
             #self.dungeon_manager.play("Water Splash", (0,0))
             #self.scree n.blit(self.background, (100, 0))
@@ -425,13 +450,15 @@ class Game:
             pygame.time.wait(1)  # Small wait to avoid busy-waiting
 
 
+
+
 if __name__ == "__main__":
     game = Game()
-    #buff_image = game.media.loadImage("data/images/effects/nuage.png")  # Remplacez avec le chemin correct
+    #buff_image = game.media.loadImage("data/images/effects/nuage.png") 
     #game.run_buff_animation(buff_image, "You won a key!")
 
     game.run_hello_screen()
-    game.show_image_with_effects("data/images/background/domination_bg.png", duration=2000)
+    game.show_image_with_effects("data/images/background/domination_bg.png", duration=500)
     #game.run_hello_screen()
 
     game.load_game()
