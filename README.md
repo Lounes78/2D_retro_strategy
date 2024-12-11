@@ -23,3 +23,4 @@ Les highlighted tiles se comportent mal
 
 
 --- debuff system, still updating, expected to push early tomorrow morning
+--- change the initial position of heros when the game starts
