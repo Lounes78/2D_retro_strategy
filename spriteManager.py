@@ -223,7 +223,6 @@ class spriteManager(object):
         每回合更新状态效果，例如减少持续时间，取消到期的效果。
         """
         expired_effects = []
-        print(f"is_burning is {self.is_burning}")
 
         for effect, duration in self.status_effects.items():
             print(f"剩余{self.status_effects[effect]}回合,生命值为{self.health}")
