@@ -11,7 +11,11 @@ class spriteManager(object):
         self.attack_selected = False
         self.cursor_target_position = []
         self.target_position = None
-        
+
+        self.status_effects = {}
+        self.is_frozen = False  # 冻结状态
+        self.is_burning = False  # 燃烧状态
+
         self.max_move = 2
         
         self.marked_for_removal = False
@@ -181,6 +185,8 @@ class spriteManager(object):
 
 
 
+
+
     def _nextNotWalkable(self, row, col):
         """Checks if next tilde is deep water."""
 
@@ -199,3 +205,47 @@ class spriteManager(object):
 
 
 
+        """----------------------------------------test-----------------------------------------------"""
+    def apply_status_effect(self, effect_name, duration):
+        """
+        施加一个状态效果。
+        :param effect_name: 状态名称，例如 "Frozen", "Burning", "Slowed"
+        :param duration: 状态持续的回合数
+        """
+        self.status_effects[effect_name] = duration
+        if effect_name == "Burn":
+            self.is_burning = True
+        elif effect_name == "Frozen":
+            self.is_frozen = True
+
+    def update_status_effects(self):
+        """
+        每回合更新状态效果，例如减少持续时间，取消到期的效果。
+        """
+        expired_effects = []
+        print(f"is_burning is {self.is_burning}")
+
+        for effect, duration in self.status_effects.items():
+            print(f"剩余{self.status_effects[effect]}回合,生命值为{self.health}")
+            self.status_effects[effect] -= 1
+            if self.status_effects[effect] < 0:
+                print(f"{effect} is expired")
+                expired_effects.append(effect)
+
+        for effect in expired_effects:
+            print(expired_effects)
+            del self.status_effects[effect]
+            if effect == "Frozen":
+                self.is_frozen = False
+            elif effect == "Burn":
+                self.is_burning = False
+
+
+        # 持续伤害
+        if self.is_burning:
+            self.take_damage(20)  # 每回合燃烧扣5点血量
+            print(f"{self.mapPosition} is burned!")
+
+        # 冻结效果：不能移动
+        if self.is_frozen:
+            print(f"{self.mapPosition} is frozen at {self.mapPosition}!")

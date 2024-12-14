@@ -259,6 +259,9 @@ class Game:
         dracko_units = all_characters[:4]
         # Player 2 gets the next 4 characters
         second_character_units = all_characters[4:]
+        """-----------------------------------------------------------------"""
+        self.all_sprites = all_characters  # 玩家单位 + 怪物单位(未实装)
+        print("All sprites:", self.all_sprites)
 
         # Initialize players with their respective units
         self.dracko_player = Player("Dracko", dracko_units)
@@ -357,6 +360,10 @@ class Game:
         new_zone_position = None
         
         while True:
+
+
+
+
             pygame.event.pump()  # updating the events queue from the os
             key_input = pygame.key.get_pressed()
 
@@ -390,6 +397,11 @@ class Game:
             ):
                 players[active_player_index].played = 0
                 players[active_player_index].set_active(False)
+
+                """-----------------------------"""
+                for sprite in self.all_sprites:
+                    sprite.update_status_effects()
+
                 active_player_index = (active_player_index + 1) % len(players)
                 players[active_player_index].set_active(True)
                 last_turn_switch_time = current_time  # Update the timestamp
@@ -448,12 +460,16 @@ class Game:
                 for enemy_sprite in players[not (active_player_index)].sprite_managers:
                     if enemy_sprite.mapPosition == attack_position:
                         # print(f"this is the {attack_position}")
+                        if hasattr(active_unit, 'perform_special_attack'):
+                            active_unit.perform_special_attack(enemy_sprite)
+                        else:
+                            active_unit.perform_attack(30, enemy_sprite)
 
-                        damage = 30  # par exemple
+                        """damage = 30  # par exemple
 
                         
                         #animation_duration = 1000
-                        active_unit.perform_attack(damage, enemy_sprite)
+                        active_unit.perform_attack(damage, enemy_sprite)"""
 
                         if not enemy_sprite.is_alive() and not enemy_sprite.marked_for_removal:
                             enemy_sprite.marked_for_removal = True

@@ -16,6 +16,11 @@ class WaterSprite(spriteManager):
         print(f"{self.name} unleashes a {self.attacks[1]} at {target.mapPosition}!")
         target.take_damage(40)  # 独特技能造成 40 点伤害
 
+        if self.attacks[self.selected_attack] == "Ice Spike":
+            target.apply_status_effect("Frozen", 2)  # 冻结2回合
+        elif self.attacks[self.selected_attack] == "Fireball":
+            target.apply_status_effect("Burning", 3)  # 燃烧3回合
+
 
 # define the son class of fire
 class FireSprite(spriteManager):
@@ -26,8 +31,13 @@ class FireSprite(spriteManager):
 
     def perform_special_attack(self, target):
         print(f"{self.name} casts {self.attacks[1]} at {target.mapPosition}!")
-        target.take_damage(45)  # 独特技能造成 45 点伤害
-        target.apply_status_effect("Burn", 3)
+
+        if self.attacks[self.selected_attack] == "Fireball":
+            target.take_damage(40)
+            target.apply_status_effect("Burn", 1)  # 冻结2回合
+        elif self.attacks[self.selected_attack] == "Flame Burst":
+            target.take_damage(10)
+            target.apply_status_effect("Burn", 3)  # 燃烧3回合
 
 
 # define the son class of ice
