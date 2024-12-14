@@ -416,17 +416,34 @@ class Game:
             self.menu_open = active_unit.menu_open # mode menu ou pas recuperer des que je clique sur m ca devient True
             # print(f"menu{active_unit.menu_open}")
             if not self.menu_open:
-                if players[active_player_index].is_turn():
+                if players[active_player_index].is_turn() :
                     if key_input[K_UP]:
-                        players[active_player_index].take_turn(1, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        if active_unit.is_frozen :
+                            print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                        else:
+                            players[active_player_index].take_turn(1, current_unit_index, highlighted_positions, active_unit.mapPosition)
                     elif key_input[K_DOWN]:
-                        players[active_player_index].take_turn(2, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        if active_unit.is_frozen :
+                            print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                        else :
+                            players[active_player_index].take_turn(2, current_unit_index, highlighted_positions, active_unit.mapPosition)
                     elif key_input[K_LEFT]:
-                        players[active_player_index].take_turn(3, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        if active_unit.is_frozen :
+                            print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                        else:
+                            players[active_player_index].take_turn(3, current_unit_index, highlighted_positions, active_unit.mapPosition)
                     elif key_input[K_RIGHT]:
-                        players[active_player_index].take_turn(4, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        if active_unit.is_frozen :
+                            print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                        else:
+                            players[active_player_index].take_turn(4, current_unit_index, highlighted_positions, active_unit.mapPosition)
                     elif key_input[K_SPACE]:
-                        players[active_player_index].take_turn(0, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        if active_unit.is_frozen :
+                            print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                        else :
+                            players[active_player_index].take_turn(0, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                """else:
+                    print(f"{active_unit.name} is frozen and cannot take actions this turn.")"""
                 self.target_position_sprite.mapPosition = [active_unit.mapPosition[0], active_unit.mapPosition[1]]
 
             # Update the game screen

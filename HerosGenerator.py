@@ -34,10 +34,10 @@ class FireSprite(spriteManager):
 
         if self.attacks[self.selected_attack] == "Fireball":
             target.take_damage(40)
-            target.apply_status_effect("Burn", 1)  # 冻结2回合
+            target.apply_status_effect("Burn", 1)  # 燃烧1回合 burned 1 turn
         elif self.attacks[self.selected_attack] == "Flame Burst":
             target.take_damage(10)
-            target.apply_status_effect("Burn", 3)  # 燃烧3回合
+            target.apply_status_effect("Burn", 3)  # 燃烧3回合 burned 3 turns
 
 
 # define the son class of ice
@@ -49,8 +49,13 @@ class IceSprite(spriteManager):
 
     def perform_special_attack(self, target):
         print(f"{self.name} summons a {self.attacks[1]} on {target.mapPosition}!")
-        target.take_damage(35)  # 独特技能造成 35 点伤害
-        target.apply_status_effect("Frozen", 2)  # 附加冰冻效果
+
+        if self.attacks[self.selected_attack] == "Ice Spike":
+            target.take_damage(30)
+            target.apply_status_effect("Frozen", 1)  # 冰冻1回合 frozen 1 turn
+        elif self.attacks[self.selected_attack] == "Blizzard":
+            target.take_damage(5)
+            target.apply_status_effect("Frozen", 3)  # 冰冻3回合 frozen 3 turns
 
     def freeze(self):
         print(f"{self.name}'s target is frozen and loses their next turn!")

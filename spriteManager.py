@@ -143,7 +143,10 @@ class spriteManager(object):
 
     def handle_attacks(self, key_input, screen, attack_position):
         if key_input[K_m]:
-            self.menu_open = not self.menu_open
+            if self.is_frozen :
+                print(f"{self.name} is frozen and cannot take actions this turn.")
+            else:
+                self.menu_open = not self.menu_open
         elif self.menu_open: # choosing the attack
             self.draw_menu(screen)
             if key_input[K_UP] and self.attack_selected == False:
