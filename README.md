@@ -23,3 +23,5 @@ Les highlighted tiles se comportent mal
 
 
 --- debuff system (only for burn, the others kinds of debuff will come soon ) ✅
+
+--- All statements outputting monsters' position information (e.g., `print(f"Monster {self.name} moving from {self.mapPosition} to [{new_row}, {new_col}]")`) have been commented out to ensure that the debugging process remains clear and easy to read.
