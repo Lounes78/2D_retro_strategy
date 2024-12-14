@@ -33,11 +33,24 @@ class FireSprite(spriteManager):
         print(f"{self.name} casts {self.attacks[self.selected_attack]} at {target.mapPosition}!")
 
         if self.attacks[self.selected_attack] == "Fireball":
-            target.take_damage(40)
-            target.apply_status_effect("Burn", 1)  # 燃烧1回合 burned 1 turn
+            dmg = 40
+            burn_duration = 1
+            if isinstance(target, WaterSprite):
+                dmg //= 2  # 伤害减半
+                burn_duration -= 2  # 燃烧效果减少两回合
+                burn_duration = max(0, burn_duration)  # 防止负数持续时间
+
+            target.take_damage(dmg)
+            target.apply_status_effect("Burn", burn_duration)  # 燃烧1回合 burned 1 turn
         elif self.attacks[self.selected_attack] == "Flame Burst":
-            target.take_damage(10)
-            target.apply_status_effect("Burn", 3)  # 燃烧3回合 burned 3 turns
+            dmg = 10
+            burn_duration = 3
+            if isinstance(target, WaterSprite):
+                dmg //= 2  # 伤害减半
+                burn_duration -= 2  # 燃烧效果减少两回合
+                burn_duration = max(0, burn_duration)  # 防止负数持续时间
+            target.take_damage(dmg)
+            target.apply_status_effect("Burn", burn_duration)  # 燃烧3回合 burned 3 turns
 
 
 # define the son class of ice

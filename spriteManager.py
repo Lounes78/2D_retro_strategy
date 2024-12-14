@@ -246,8 +246,8 @@ class spriteManager(object):
         # 持续伤害
         if self.is_burning:
             self.take_damage(20)  # 每回合燃烧扣20点血量
-            print(f"{self.mapPosition} is burned!")
+            print(f"{self.name} is burned!")
 
         # 冻结效果：不能移动
         if self.is_frozen:
-            print(f"{self.mapPosition} is frozen at {self.mapPosition}!")
+            print(f"{self.name} is frozen at {self.mapPosition}!")
