@@ -30,7 +30,7 @@ class FireSprite(spriteManager):
         self.attacks = ["Fireball", "Flame Burst"]
 
     def perform_special_attack(self, target):
-        print(f"{self.name} casts {self.attacks[1]} at {target.mapPosition}!")
+        print(f"{self.name} casts {self.attacks[self.selected_attack]} at {target.mapPosition}!")
 
         if self.attacks[self.selected_attack] == "Fireball":
             target.take_damage(40)
