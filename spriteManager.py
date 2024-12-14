@@ -225,7 +225,7 @@ class spriteManager(object):
         expired_effects = []
 
         for effect, duration in self.status_effects.items():
-            print(f"剩余{self.status_effects[effect]}回合,生命值为{self.health}")
+            print(f"{self.status_effects[effect]} turns remaining, health is {self.health}")
             self.status_effects[effect] -= 1
             if self.status_effects[effect] < 0:
                 print(f"{effect} is expired")
@@ -242,7 +242,7 @@ class spriteManager(object):
 
         # 持续伤害
         if self.is_burning:
-            self.take_damage(20)  # 每回合燃烧扣5点血量
+            self.take_damage(20)  # 每回合燃烧扣20点血量
             print(f"{self.mapPosition} is burned!")
 
         # 冻结效果：不能移动
