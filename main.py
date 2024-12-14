@@ -413,35 +413,90 @@ class Game:
             # unit_position = players[active_player_index].sprite_managers[current_unit_index].mapPosition
 
             # Process movement only for the active player
+            # Flag to store paralysis check result for the current turn
+            if not hasattr(active_unit, "paralyze_checked"):
+                active_unit.paralyze_checked = False
+                active_unit.Trigger_paralysis = False
+
+            if active_unit.is_paralyze and not active_unit.paralyze_checked:
+                # Perform paralysis check once per turn
+                active_unit.paralyze_checked = True
+                if random.random() < 0.5:  # 50% chance
+                    active_unit.Trigger_paralysis = True
+                    print(f"{active_unit.name} is paralyzed and cannot take actions this turn.")
+                else:
+                    active_unit.Trigger_paralysis = False
+                    print(f"{active_unit.name} resists paralysis and can act this turn!")
             self.menu_open = active_unit.menu_open # mode menu ou pas recuperer des que je clique sur m ca devient True
             # print(f"menu{active_unit.menu_open}")
             if not self.menu_open:
                 if players[active_player_index].is_turn() :
+
+                    if not active_unit.Trigger_paralysis:
+                        if key_input[K_UP]:
+                            if active_unit.is_frozen :
+                                print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                            else:
+                                players[active_player_index].take_turn(1, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        elif key_input[K_DOWN]:
+                            if active_unit.is_frozen :
+                                print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                            else :
+                                players[active_player_index].take_turn(2, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        elif key_input[K_LEFT]:
+                            if active_unit.is_frozen :
+                                print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                            else:
+                                players[active_player_index].take_turn(3, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        elif key_input[K_RIGHT]:
+                            if active_unit.is_frozen :
+                                print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                            else:
+                                players[active_player_index].take_turn(4, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        elif key_input[K_SPACE]:
+                            if active_unit.is_frozen :
+                                print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                            else :
+                                players[active_player_index].take_turn(0, current_unit_index, highlighted_positions, active_unit.mapPosition)
+
+                    """def can_act(unit):
+                        if active_unit.is_frozen:
+                            print(f"{unit.name} is frozen and cannot take actions this turn.")
+                            return False
+                        elif active_unit.is_paralyze:
+                            if random.random() < 0.5:  # 50% chance
+                                print(f"{active_unit.name} is paralyzed and cannot take actions this turn.")
+                                return False
+                            else:
+                                print(f"{active_unit.name} resists paralysis and can act this turn!")
+                        return True
+                        # Handle movement inputs (K_UP, K_DOWN, K_LEFT, K_RIGHT)
                     if key_input[K_UP]:
-                        if active_unit.is_frozen :
-                            print(f"{active_unit.name} is frozen and cannot take actions this turn.")
-                        else:
-                            players[active_player_index].take_turn(1, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        if can_act(active_unit):  # Check if the unit can act
+                            players[active_player_index].take_turn(1, current_unit_index, highlighted_positions,
+                                                                       active_unit.mapPosition)
+
                     elif key_input[K_DOWN]:
-                        if active_unit.is_frozen :
-                            print(f"{active_unit.name} is frozen and cannot take actions this turn.")
-                        else :
-                            players[active_player_index].take_turn(2, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        if can_act(active_unit):  # Check if the unit can act
+                            players[active_player_index].take_turn(2, current_unit_index, highlighted_positions,
+                                                                       active_unit.mapPosition)
+
                     elif key_input[K_LEFT]:
-                        if active_unit.is_frozen :
-                            print(f"{active_unit.name} is frozen and cannot take actions this turn.")
-                        else:
-                            players[active_player_index].take_turn(3, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        if can_act(active_unit):  # Check if the unit can act
+                            players[active_player_index].take_turn(3, current_unit_index, highlighted_positions,
+                                                                       active_unit.mapPosition)
+
                     elif key_input[K_RIGHT]:
-                        if active_unit.is_frozen :
-                            print(f"{active_unit.name} is frozen and cannot take actions this turn.")
-                        else:
-                            players[active_player_index].take_turn(4, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        if can_act(active_unit):  # Check if the unit can act
+                            players[active_player_index].take_turn(4, current_unit_index, highlighted_positions,
+                                                                       active_unit.mapPosition)
+
+                    # Handle end-turn input (K_SPACE)
                     elif key_input[K_SPACE]:
-                        if active_unit.is_frozen :
-                            print(f"{active_unit.name} is frozen and cannot take actions this turn.")
-                        else :
-                            players[active_player_index].take_turn(0, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        players[active_player_index].take_turn(0, current_unit_index, highlighted_positions,
+                                                                   active_unit.mapPosition)"""
+
+
                 """else:
                     print(f"{active_unit.name} is frozen and cannot take actions this turn.")"""
                 self.target_position_sprite.mapPosition = [active_unit.mapPosition[0], active_unit.mapPosition[1]]
@@ -481,12 +536,6 @@ class Game:
                             active_unit.perform_special_attack(enemy_sprite)
                         else:
                             active_unit.perform_attack(30, enemy_sprite)
-
-                        """damage = 30  # par exemple
-
-                        
-                        #animation_duration = 1000
-                        active_unit.perform_attack(damage, enemy_sprite)"""
 
                         if not enemy_sprite.is_alive() and not enemy_sprite.marked_for_removal:
                             enemy_sprite.marked_for_removal = True

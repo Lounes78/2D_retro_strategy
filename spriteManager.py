@@ -13,8 +13,11 @@ class spriteManager(object):
         self.target_position = None
 
         self.status_effects = {}
-        self.is_frozen = False  # 冻结状态
-        self.is_burning = False  # 燃烧状态
+        self.is_frozen = False  # frozen status
+        self.is_burning = False  # burn status
+        self.is_paralyze = False # paralyze status
+        self.Trigger_paralysis = False # use to check paralyze status
+        self.element_type = "Neutral"
 
         self.max_move = 2
         
@@ -145,6 +148,12 @@ class spriteManager(object):
         if key_input[K_m]:
             if self.is_frozen :
                 print(f"{self.name} is frozen and cannot take actions this turn.")
+            elif self.is_paralyze :
+                if self.Trigger_paralysis :
+                    print(f"{self.name} is paralyzed and cannot take actions this turn.")
+                else:
+                    print(f"{self.name} resists paralysis and can act this turn!")
+                    self.menu_open = not self.menu_open
             else:
                 self.menu_open = not self.menu_open
         elif self.menu_open: # choosing the attack
@@ -220,6 +229,8 @@ class spriteManager(object):
             self.is_burning = True
         elif effect_name == "Frozen":
             self.is_frozen = True
+        elif effect_name == "Paralyze":
+            self.is_paralyze = True
 
     def update_status_effects(self):
         """
@@ -228,7 +239,8 @@ class spriteManager(object):
         expired_effects = []
 
         for effect, duration in self.status_effects.items():
-            print(f"{self.status_effects[effect]} turns remaining, health is {self.health}")
+            if self.status_effects[effect] % 2 == 0 :
+                print(f"{self.status_effects[effect]/2} turns remaining, health is {self.health}")
             self.status_effects[effect] -= 1
             if self.status_effects[effect] < 0:
                 print(f"{effect} is expired")
@@ -241,13 +253,21 @@ class spriteManager(object):
                 self.is_frozen = False
             elif effect == "Burn":
                 self.is_burning = False
+            elif effect == "Paralyze":
+                self.is_paralyze = False
 
-
-        # 持续伤害
+        # Persistent damage for burning
         if self.is_burning:
-            self.take_damage(20)  # 每回合燃烧扣20点血量
+            self.take_damage(10)  # 每回合燃烧扣20点血量
             print(f"{self.name} is burned!")
 
-        # 冻结效果：不能移动
+        # Frozen effect: Cannot move
         if self.is_frozen:
             print(f"{self.name} is frozen at {self.mapPosition}!")
+
+        # Paralyze effect: 50% chance to lose action
+        if self.is_paralyze:
+            if random.random() < 0.5:  # 50% chance
+                print(f"{self.name} is paralyzed and cannot take actions this turn!")
+            else:
+                print(f"{self.name} resists paralysis and can act this turn!")
