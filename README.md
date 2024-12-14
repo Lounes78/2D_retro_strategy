@@ -22,6 +22,8 @@ Les highlighted tiles se comportent mal
 --- N'arrive pas (ou plus ?) à lancer une attaque si on a deja bougé
 
 
---- debuff system (only for burn, the others kinds of debuff will come soon ) ✅
+--- debuff system :
+- **Burning**: Take small damage over time.✅
+- **Frozen**: Cannot move or attack.  ✅
 
 --- All statements outputting monsters' position information (e.g., `print(f"Monster {self.name} moving from {self.mapPosition} to [{new_row}, {new_col}]")`) have been commented out to ensure that the debugging process remains clear and easy to read.
