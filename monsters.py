@@ -52,14 +52,14 @@ class WaterMonster(spriteManager):
                 all(monster.mapPosition != [new_row, new_col] for monster in other_monsters) and  # Vérifie les autres monstres
                 all(unit.mapPosition != [new_row, new_col] for unit in player_units)   # Vérifie les cases non walkables
             ):
-                print(f"Monster {self.name} moving from {self.mapPosition} to [{new_row}, {new_col}]")
+                #print(f"Monster {self.name} moving from {self.mapPosition} to [{new_row}, {new_col}]")
                 self.mapPosition = [new_row, new_col]
                 break
 
 
 
     def perform_special_attack(self, target):
-        print(f"{self.name} unleashes a {self.attacks[1]} at {target.mapPosition}!")
+        #print(f"{self.name} unleashes a {self.attacks[1]} at {target.mapPosition}!")
         target.take_damage(30)
 
 class FlyMonster(spriteManager):
@@ -105,13 +105,13 @@ class FlyMonster(spriteManager):
                 all(monster.mapPosition != [new_row, new_col] for monster in other_monsters) and  # Vérifie les autres monstres
                 all(unit.mapPosition != [new_row, new_col] for unit in player_units)   # Vérifie les cases non walkables
             ):
-                print(f"Monster {self.name} moving from {self.mapPosition} to [{new_row}, {new_col}]")
+                #print(f"Monster {self.name} moving from {self.mapPosition} to [{new_row}, {new_col}]")
                 self.mapPosition = [new_row, new_col]
                 break
         self.sprite = self.spriteFrontLeft
 
     def perform_special_attack(self, target):
-        print(f"{self.name} casts {self.attacks[1]} at {target.mapPosition}!")
+        #print(f"{self.name} casts {self.attacks[1]} at {target.mapPosition}!")
         target.take_damage(35)
 
 class PoisonMonster(spriteManager):
@@ -158,11 +158,11 @@ class PoisonMonster(spriteManager):
                 all(monster.mapPosition != [new_row, new_col] for monster in other_monsters) and  # Vérifie les autres monstres
                 all(unit.mapPosition != [new_row, new_col] for unit in player_units)   # Vérifie les cases non walkables
             ):
-                print(f"Monster {self.name} moving from {self.mapPosition} to [{new_row}, {new_col}]")
+                #print(f"Monster {self.name} moving from {self.mapPosition} to [{new_row}, {new_col}]")
                 self.mapPosition = [new_row, new_col]
                 break
     def perform_special_attack(self, target):
-        print(f"{self.name} summons a {self.attacks[1]} on {target.mapPosition}!")
+        #print(f"{self.name} summons a {self.attacks[1]} on {target.mapPosition}!")
         target.take_damage(25)
 
 class OctopusMonster(spriteManager):
@@ -209,11 +209,11 @@ class OctopusMonster(spriteManager):
                 all(monster.mapPosition != [new_row, new_col] for monster in other_monsters) and  # Vérifie les autres monstres
                 all(unit.mapPosition != [new_row, new_col] for unit in player_units)   # Vérifie les cases non walkables
             ):
-                print(f"Monster {self.name} moving from {self.mapPosition} to [{new_row}, {new_col}]")
+                #print(f"Monster {self.name} moving from {self.mapPosition} to [{new_row}, {new_col}]")
                 self.mapPosition = [new_row, new_col]
                 break
     def perform_special_attack(self, target):
-        print(f"{self.name} summons a {self.attacks[1]} at {target.mapPosition}!")
+        #print(f"{self.name} summons a {self.attacks[1]} at {target.mapPosition}!")
         target.take_damage(40)
 
 def create_monsters(dungeon, media):

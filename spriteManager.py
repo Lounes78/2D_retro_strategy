@@ -11,7 +11,16 @@ class spriteManager(object):
         self.attack_selected = False
         self.cursor_target_position = []
         self.target_position = None
-        
+
+        # key parameters for hero design
+        self.status_effects = {}
+        self.is_frozen = False  # frozen status
+        self.is_burning = False  # burn status
+        self.is_paralyze = False # paralyze status
+        self.Trigger_paralysis = False # use to check paralyze status
+        self.element_type = "Neutral"
+        self.defense = False
+
         self.max_move = 2
         
         self.marked_for_removal = False
@@ -149,11 +158,6 @@ class spriteManager(object):
 
         # Green for current health
 
-
-
-    def take_damage(self, damage):
-        self.health = max(0, self.health - damage)
-
     def is_alive(self):
         return self.health > 0
 
@@ -161,10 +165,25 @@ class spriteManager(object):
         return not(self.is_alive())
 
 
+    def take_damage(self, damage):
+        self.health = max(0, self.health - damage)
+        if self.health <= 0:
+            self.marked_for_removal = True
+            if not hasattr(self, 'removal_time') or self.removal_time is None:
+                self.removal_time = pygame.time.get_ticks()  # 初始化移除时间
 
     def handle_attacks(self, key_input, screen, attack_position):
         if key_input[K_m]:
-            self.menu_open = not self.menu_open
+            if self.is_frozen :
+                print(f"{self.name} is frozen and cannot take actions this turn.")
+            elif self.is_paralyze :
+                if self.Trigger_paralysis :
+                    print(f"{self.name} is paralyzed and cannot take actions this turn.")
+                else:
+                    print(f"{self.name} resists paralysis and can act this turn!")
+                    self.menu_open = not self.menu_open
+            else:
+                self.menu_open = not self.menu_open
         elif self.menu_open: # choosing the attack
             self.draw_menu(screen)
             if key_input[K_UP] and self.attack_selected == False:
@@ -172,7 +191,15 @@ class spriteManager(object):
             if key_input[K_DOWN] and self.attack_selected == False:
                 self.selected_attack = (self.selected_attack + 1)%len(self.attacks)
             elif key_input[K_RETURN] and self.attack_selected == False:
-                self.attack_selected = True
+
+                if self.attacks[self.selected_attack] == "Defense":
+                    print(f"{self.name} is defending this turn!")
+                    self.defense = True  # active defense status
+                    self.menu_open = False
+                    return attack_position
+                else:
+                    self.attack_selected = True
+
             elif key_input[K_RETURN] and self.attack_selected == True: # ATTACK
                 self.attack_selected = False
                 self.menu_open = False
@@ -225,6 +252,8 @@ class spriteManager(object):
 
 
 
+
+
     def _nextNotWalkable(self, row, col):
         """Checks if next tilde is deep water."""
 
@@ -243,3 +272,57 @@ class spriteManager(object):
 
 
 
+        """----------------------------------------test-----------------------------------------------"""
+    def apply_status_effect(self, effect_name, duration):
+        """
+        Applies a status effect to the target.
+        :param effect_name: The name of the status effect, e.g., "Frozen", "Burning", "Slowed".
+        :param duration: The number of turns the effect will last.
+        """
+        self.status_effects[effect_name] = duration
+        if effect_name == "Burn":
+            self.is_burning = True
+        elif effect_name == "Frozen":
+            self.is_frozen = True
+        elif effect_name == "Paralyze":
+            self.is_paralyze = True
+
+    def update_status_effects(self):
+        """
+        Updates status effects each turn, such as reducing their duration and removing expired effects.
+        """
+        expired_effects = []
+
+        for effect, duration in self.status_effects.items():
+            if self.status_effects[effect] % 2 == 0 :
+                print(f"{self.status_effects[effect]/2} turns remaining, health is {self.health}")
+            self.status_effects[effect] -= 1
+            if self.status_effects[effect] <= 0:
+                print(f"{effect} is expired")
+                expired_effects.append(effect)
+
+        for effect in expired_effects:
+            print(expired_effects)
+            del self.status_effects[effect]
+            if effect == "Frozen":
+                self.is_frozen = False
+            elif effect == "Burn":
+                self.is_burning = False
+            elif effect == "Paralyze":
+                self.is_paralyze = False
+
+        # Persistent damage for burning
+        if self.is_burning:
+            self.take_damage(10)
+            print(f"{self.name} is burned!")
+
+        # Frozen effect: Cannot move
+        if self.is_frozen:
+            print(f"{self.name} is frozen at {self.mapPosition}!")
+
+        # Paralyze effect: 50% chance to lose action
+        if self.is_paralyze:
+            if random.random() < 0.5:  # 50% chance
+                print(f"{self.name} is paralyzed and cannot take actions this turn!")
+            else:
+                print(f"{self.name} resists paralysis and can act this turn!")

@@ -277,6 +277,9 @@ class Game:
         dracko_units = all_characters[:4]
         # Player 2 gets the next 4 characters
         second_character_units = all_characters[4:]
+        """-----------------------------------------------------------------"""
+        self.all_sprites = all_characters  # 玩家单位 + 怪物单位(未实装)
+        print("All sprites:", self.all_sprites)
 
         # Initialize players with their respective units
         self.dracko_player = Player("Dracko", dracko_units)
@@ -378,6 +381,10 @@ class Game:
         new_zone_position = None
         
         while True:
+
+
+
+
             pygame.event.pump()  # updating the events queue from the os
             key_input = pygame.key.get_pressed()
 
@@ -394,8 +401,8 @@ class Game:
             self.handle_zone(players, new_zone_position)
 
 
-            
-            
+
+
             # Handle unit switching within the active player
             if key_input[K_TAB]:
                 current_unit_index = (current_unit_index + 1) % len(players[active_player_index].sprite_managers)
@@ -411,6 +418,11 @@ class Game:
             ):
                 players[active_player_index].played = 0
                 players[active_player_index].set_active(False)
+
+                """-----------------------------"""
+                for sprite in players[active_player_index].sprite_managers:
+                    sprite.update_status_effects()
+
                 active_player_index = (active_player_index + 1) % len(players)
                 players[active_player_index].set_active(True)
                 last_turn_switch_time = current_time  # Update the timestamp
@@ -422,20 +434,55 @@ class Game:
             # unit_position = players[active_player_index].sprite_managers[current_unit_index].mapPosition
 
             # Process movement only for the active player
+            # Flag to store paralysis check result for the current turn
+            if not hasattr(active_unit, "paralyze_checked"):
+                active_unit.paralyze_checked = False
+                active_unit.Trigger_paralysis = False
+
+            if active_unit.is_paralyze and not active_unit.paralyze_checked:
+                # Perform paralysis check once per turn
+                active_unit.paralyze_checked = True
+                if random.random() < 0.5:  # 50% chance
+                    active_unit.Trigger_paralysis = True
+                    print(f"{active_unit.name} is paralyzed and cannot take actions this turn.")
+                else:
+                    active_unit.Trigger_paralysis = False
+                    print(f"{active_unit.name} resists paralysis and can act this turn!")
             self.menu_open = active_unit.menu_open # mode menu ou pas recuperer des que je clique sur m ca devient True
             # print(f"menu{active_unit.menu_open}")
             if not self.menu_open:
-                if players[active_player_index].is_turn():
-                    if key_input[K_UP]:
-                        players[active_player_index].take_turn(1, current_unit_index, highlighted_positions, active_unit.mapPosition)
-                    elif key_input[K_DOWN]:
-                        players[active_player_index].take_turn(2, current_unit_index, highlighted_positions, active_unit.mapPosition)
-                    elif key_input[K_LEFT]:
-                        players[active_player_index].take_turn(3, current_unit_index, highlighted_positions, active_unit.mapPosition)
-                    elif key_input[K_RIGHT]:
-                        players[active_player_index].take_turn(4, current_unit_index, highlighted_positions, active_unit.mapPosition)
-                    elif key_input[K_SPACE]:
-                        players[active_player_index].take_turn(0, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                if players[active_player_index].is_turn() :
+
+                    if not active_unit.Trigger_paralysis:
+                        if key_input[K_UP]:
+                            if active_unit.is_frozen :
+                                print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                            else:
+                                players[active_player_index].take_turn(1, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        elif key_input[K_DOWN]:
+                            if active_unit.is_frozen :
+                                print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                            else :
+                                players[active_player_index].take_turn(2, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        elif key_input[K_LEFT]:
+                            if active_unit.is_frozen :
+                                print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                            else:
+                                players[active_player_index].take_turn(3, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        elif key_input[K_RIGHT]:
+                            if active_unit.is_frozen :
+                                print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                            else:
+                                players[active_player_index].take_turn(4, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                        elif key_input[K_SPACE]:
+                            if active_unit.is_frozen :
+                                print(f"{active_unit.name} is frozen and cannot take actions this turn.")
+                            else :
+                                players[active_player_index].take_turn(0, current_unit_index, highlighted_positions, active_unit.mapPosition)
+                            for enemy_sprite in players[not (active_player_index)].sprite_managers:
+                                enemy_sprite.defense = False
+                """else:
+                    print(f"{active_unit.name} is frozen and cannot take actions this turn.")"""
                 self.target_position_sprite.mapPosition = [active_unit.mapPosition[0], active_unit.mapPosition[1]]
 
             # Update the game screen
@@ -456,6 +503,15 @@ class Game:
 
             attack_position = active_unit.handle_attacks(key_input, self.screen, unit_position)  # ou est ce que tu as appuyé sur entrée quand tu geres une suile pour lattaque
             # print(active_unit.selected_attack)
+            if active_unit.defense:
+                attack_position = None
+                # change the player once defense
+                players[active_player_index].played = 0
+                players[active_player_index].set_active(False)
+                active_player_index = (active_player_index + 1) % len(players)
+                players[active_player_index].set_active(True)
+                last_turn_switch_time = current_time
+                #print(f"{active_unit.name} is defense and cannot take actions this turn.")
             selected_attack = active_unit.attacks[active_unit.selected_attack]
             # print(f"selected attack{selected_attack}")
             # find the ennemy and attack it
@@ -469,12 +525,15 @@ class Game:
                 for enemy_sprite in players[not (active_player_index)].sprite_managers:
                     if enemy_sprite.mapPosition == attack_position:
                         # print(f"this is the {attack_position}")
-
-                        damage = 30  # par exemple
-
-                        
-                        #animation_duration = 1000
-                        active_unit.perform_attack(damage, enemy_sprite)
+                        if hasattr(active_unit, 'perform_special_attack'):
+                            print(f"{enemy_sprite.defense}")
+                            if not enemy_sprite.defense :
+                                active_unit.perform_special_attack(enemy_sprite)
+                            else:
+                                print(f"{enemy_sprite.name} is in a defensive state and will not take damage. ")
+                                enemy_sprite.defense = False
+                        else:
+                            active_unit.perform_attack(30, enemy_sprite)
 
                         if not enemy_sprite.is_alive() and not enemy_sprite.marked_for_removal:
                             enemy_sprite.marked_for_removal = True
@@ -487,6 +546,7 @@ class Game:
                         active_player_index = (active_player_index + 1) % len(players)
                         players[active_player_index].set_active(True)
                         last_turn_switch_time = current_time
+
                 for monster in self.monsters[:]:
                     
                     if monster.mapPosition == attack_position:
@@ -571,6 +631,8 @@ class Game:
                 if monster.marked_for_removal and pygame.time.get_ticks() - monster.removal_time > 500:
                     self.monsters.remove(monster)
             self.display_scores()
+
+
 
             if key_input[K_ESCAPE] or pygame.event.peek(QUIT):
                 # update_map(self.file_path, None, '*', (8, 10), distance=2)
