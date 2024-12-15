@@ -48,7 +48,6 @@ class FireSprite(spriteManager):
     def perform_special_attack(self, target):
         print(f"{self.name} casts {self.attacks[self.selected_attack]} at {target.mapPosition}!")
 
-        # Set base damage value and initial burn duration based on skill type
         if self.attacks[self.selected_attack] == "Fireball":
             base_damage = 20
             base_burn_duration = 1
@@ -57,9 +56,8 @@ class FireSprite(spriteManager):
             base_burn_duration = 3
 
         # Calculate damage and effects
-        damage, burn_turn, freeze_turn, paralyze_turn,slow_turn = calculate_damage_and_effect(self, target, base_damage, burn=base_burn_duration)
+        damage, burn_turn, freeze_turn, paralyze_turn = calculate_damage_and_effect(self, target, base_damage, burn=base_burn_duration)
 
-        # Apply damage or healing
         if damage < 0:
             target.health -= damage
             print(f"{target.name} heals for {-damage} HP!")
@@ -83,7 +81,6 @@ class IceSprite(spriteManager):
     def perform_special_attack(self, target):
         print(f"{self.name} summons a {self.selected_attack} on {target.mapPosition}!")
 
-        # Set base damage value and initial burn duration based on skill type
         if self.attacks[self.selected_attack] == "Ice Spike":
             base_damage = 20
             base_frozen_duration = 1
@@ -92,9 +89,8 @@ class IceSprite(spriteManager):
             base_frozen_duration = 3
 
         # Calculate damage and effects
-        damage, burn_turn, freeze_turn, paralyze_turn,slow_turn = calculate_damage_and_effect(self, target, base_damage, freeze=base_frozen_duration)
+        damage, burn_turn, freeze_turn, paralyze_turn = calculate_damage_and_effect(self, target, base_damage, freeze=base_frozen_duration)
 
-        # Apply damage or healing
         if damage < 0:
             target.health -= damage
             print(f"{target.name} heals for {-damage} HP!")
@@ -130,35 +126,32 @@ class ThunderSprite(spriteManager):
             base_paralyze_duration = 3  # 3 turn
 
         # Calculate damage and effects
-        damage, burn_turn, freeze_turn, paralyze_turn,slow_turn = calculate_damage_and_effect(self, target, base_damage, paralyze=base_paralyze_duration)
+        damage, burn_turn, freeze_turn, paralyze_turn = calculate_damage_and_effect(self, target, base_damage, paralyze=base_paralyze_duration)
 
-        # Apply damage or healing
         if damage < 0:
             target.health -= damage
             print(f"{target.name} heals for {-damage} HP!")
         else:
             target.take_damage(damage)
 
-        # Apply status effects
         if paralyze_turn > 0:
             target.apply_status_effect("Paralyze", paralyze_turn)
 
 
-# Create character instances
 
 def create_characters(dungeon, media):
     characters = []
 
     # the heros of first group
     characters.append(WaterSprite(dungeon, media, [0, 0], "Aqua Warrior")) #eau
-    characters.append(FireSprite(dungeon, media, [0, 2], "Flame Knight")) #feu
-    characters.append(IceSprite(dungeon, media, [0, 4], "Frost Guardian")) #ice
-    characters.append(ThunderSprite(dungeon, media, [0, 6], "Storm Hunter")) #thunder
+    characters.append(FireSprite(dungeon, media, [0, 3], "Flame Knight")) #feu
+    characters.append(IceSprite(dungeon, media, [0, 6], "Frost Guardian")) #ice
+    characters.append(ThunderSprite(dungeon, media, [0, 9], "Storm Hunter")) #thunder
 
     # the heros in the second group
     characters.append(WaterSprite(dungeon, media, [20, 0], "Wave Rider"))
-    characters.append(FireSprite(dungeon, media, [20, 2], "Blaze Mage"))
-    characters.append(IceSprite(dungeon, media, [20, 4], "Snow Sorcerer"))
-    characters.append(ThunderSprite(dungeon, media, [20, 6], "Lightning Avenger"))
+    characters.append(FireSprite(dungeon, media, [20, 3], "Blaze Mage"))
+    characters.append(IceSprite(dungeon, media, [20, 6], "Snow Sorcerer"))
+    characters.append(ThunderSprite(dungeon, media, [20, 9], "Lightning Avenger"))
 
     return characters
