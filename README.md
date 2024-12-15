@@ -30,7 +30,7 @@ Les highlighted tiles se comportent mal
 --- All statements outputting monsters' position information (e.g., `print(f"Monster {self.name} moving from {self.mapPosition} to [{new_row}, {new_col}]")`) have been commented out to ensure that the debugging process remains clear and easy to read.
 
 
-### Attribute Resistance System
+### Attribute Resistance System ✅
 | **Element** | **Strong Against** | **Weak Against** | **Damage Multiplier** | **Special Effect**                                                              |
 |-------------|--------------------|------------------|-----------------------|---------------------------------------------------------------------------------|
 | **Water**   | Fire               | Thunder          | Fire x2               | Against Ice: Heal (dmg -50, when it's negative will heal the target), no damage |
