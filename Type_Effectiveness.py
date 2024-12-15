@@ -10,7 +10,7 @@ ATTRIBUTE_EFFECTS = {
     "Water": {
         "Fire": {"damage_multiplier": 2}, # Water deals double damage to Fire
         "Ice": {"heal": -50},             # Water heals Ice instead of damaging it
-        "Thunder": {"damage_multiplier": 0.5}, # Water deals half damage to Thunder
+        "Thunder": {"damage_multiplier": 0.75}, # Water deals half damage to Thunder
     },
     "Fire": {
         "Ice": {"damage_multiplier": 2.5, "burn": 3}, # Fire deals 2.5x damage to Ice and adds 3 turns of burn
