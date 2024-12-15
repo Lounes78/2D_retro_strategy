@@ -80,7 +80,7 @@ class IceSprite(spriteManager):
 
 
     def perform_special_attack(self, target):
-        print(f"{self.name} summons a {self.attacks[1]} on {target.mapPosition}!")
+        print(f"{self.name} summons a {self.selected_attack} on {target.mapPosition}!")
 
         # Set base damage value and initial burn duration based on skill type
         if self.attacks[self.selected_attack] == "Ice Spike":
@@ -88,7 +88,7 @@ class IceSprite(spriteManager):
             base_frozen_duration = 1
         elif self.attacks[self.selected_attack] == "Blizzard":
             base_damage = 10
-            base_frozen_duration = 4
+            base_frozen_duration = 3
 
         # Calculate damage and effects
         damage, burn_turn, freeze_turn, paralyze_turn = calculate_damage_and_effect(self, target, base_damage, freeze=base_frozen_duration)
@@ -118,7 +118,7 @@ class ThunderSprite(spriteManager):
 
 
     def perform_special_attack(self, target):
-        print(f"{self.name} summons a {self.attacks[1]} at {target.mapPosition}!")
+        print(f"{self.name} summons a {self.selected_attack} at {target.mapPosition}!")
 
         # Set base damage value and initial burn duration based on skill type
         if self.attacks[self.selected_attack] == "Thunder Strike":
@@ -126,7 +126,7 @@ class ThunderSprite(spriteManager):
             base_paralyze_duration = 1 # 1 turn
         elif self.attacks[self.selected_attack] == "Lightning Storm":
             base_damage = 10
-            base_paralyze_duration = 6  # 3 turn
+            base_paralyze_duration = 3  # 3 turn
 
         # Calculate damage and effects
         damage, burn_turn, freeze_turn, paralyze_turn = calculate_damage_and_effect(self, target, base_damage, paralyze=base_paralyze_duration)
