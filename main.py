@@ -99,19 +99,36 @@ class Game:
         self.active_player = None  # Variable to track the active player
         self.monsters=[]
         self.init_positions()
+
     def display_scores(self):
-        """Affiche les scores de chaque joueur à l'écran."""
-        font = pygame.font.SysFont("Courier New", 20)
+        """Affiche les scores de chaque joueur à l'écran avec un design amélioré."""
+        font = pygame.font.SysFont("Courier New", 22, bold=True)
+        
+        # Semi-transparent background panel for the scores
+        panel_width, panel_height = 250, 70
+        score_panel_rect = pygame.Rect(540, 0, panel_width, panel_height)
+        panel_surface = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
+        panel_surface.fill((0, 0, 0, 30))  # Black with transparency (180 alpha)
+        self.screen.blit(panel_surface, (score_panel_rect.x, score_panel_rect.y))
+        
+        # Border for the panel
+        pygame.draw.rect(self.screen, (200, 200, 200), score_panel_rect, 2)  # Light gray border
         
         # Score du joueur 1
         player1_score_text = f"{self.dracko_player.name}: {self.dracko_player.score}"
-        player1_surface = font.render(player1_score_text, True, (255, 255, 255))
-        self.screen.blit(player1_surface, (550, 0))  # Position en haut à gauche
+        player1_surface = font.render(player1_score_text, True, (135, 206, 250))  # Sky blue
+        player1_rect = player1_surface.get_rect(topleft=(score_panel_rect.x + 15, score_panel_rect.y + 10))
+        self.screen.blit(player1_surface, player1_rect)
         
         # Score du joueur 2
         player2_score_text = f"{self.second_player.name}: {self.second_player.score}"
-        player2_surface = font.render(player2_score_text, True, (255, 255, 255))
-        self.screen.blit(player2_surface, (550, 20))  # En dessous du score du joueur 1
+        player2_surface = font.render(player2_score_text, True, (255, 160, 122))  # Light salmon
+        player2_rect = player2_surface.get_rect(topleft=(score_panel_rect.x + 15, player1_rect.bottom + 5))
+        self.screen.blit(player2_surface, player2_rect)
+
+
+
+ # En dessous du score du joueur 1
 
     def show_image_with_effects(self, image_path, duration=2000, message="Start to Dominate"):
         """
@@ -140,7 +157,8 @@ class Game:
 
         # Shaking parameters
         shake_amplitude = 5
-        shake_frequency = 100  # Shake every 100ms
+        shake_frequency = 100  
+        # Shake every 100ms
 
         while True:
             current_time = pygame.time.get_ticks()
@@ -345,7 +363,10 @@ class Game:
 
         self.fireball_group = pygame.sprite.Group()
         self.tsunami_group = pygame.sprite.Group()
-
+        self.flame_burst_group = pygame.sprite.Group()
+        self.ice_spike_group = pygame.sprite.Group()
+        self.blizzard_group = pygame.sprite.Group()
+        self.light_storm_group = pygame.sprite.Group()
         current_unit_index = 0
         last_turn_switch_time = 0  # Timestamp for the last turn switch
         switch_cooldown = 700
@@ -514,13 +535,32 @@ class Game:
                 elif attack_animation_type == "Tsunami Wave":
                     self.dungeon_manager.play(attack_animation_type, attack_animation_position,
                                               start_position=attack_animation_start_position)
-
+                elif attack_animation_type == "Flame Burst":
+                    self.dungeon_manager.play(attack_animation_type, attack_animation_position,
+                                              start_position=attack_animation_start_position)
+                elif attack_animation_type == "Ice Spike":
+                    self.dungeon_manager.play(attack_animation_type, attack_animation_position,
+                                              start_position=attack_animation_start_position)
+                elif attack_animation_type == "Blizzard":
+                    self.dungeon_manager.play(attack_animation_type, attack_animation_position,
+                                              start_position=attack_animation_start_position)
+                elif attack_animation_type == "Lightning Storm":
+                    self.dungeon_manager.play(attack_animation_type, attack_animation_position,
+                                              start_position=attack_animation_start_position)
                 attack_animation_playing = False
                 # attack_animation_playing = False
             self.dungeon_manager.tsunami_group.update()
             self.dungeon_manager.tsunami_group.draw(self.screen)
             self.dungeon_manager.fireball_group.update()
             self.dungeon_manager.fireball_group.draw(self.screen)
+            self.dungeon_manager.flame_burst_group.update()
+            self.dungeon_manager.flame_burst_group.draw(self.screen)
+            self.dungeon_manager.ice_spike_group.update()
+            self.dungeon_manager.ice_spike_group.draw(self.screen)
+            self.dungeon_manager.blizzard_group.update()
+            self.dungeon_manager.blizzard_group.draw(self.screen)
+            self.dungeon_manager.light_storm_group.update()
+            self.dungeon_manager.light_storm_group.draw(self.screen)
             for player in players:
                 for sprite in player.sprite_managers[:]:
                     if sprite.marked_for_removal:

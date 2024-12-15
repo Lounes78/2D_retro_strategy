@@ -20,6 +20,10 @@ class dungeonManager(object):
 
         self.fireball_group = pygame.sprite.Group()
         self.tsunami_group=pygame.sprite.Group()
+        self.flame_burst_group=pygame.sprite.Group()
+        self.ice_spike_group=pygame.sprite.Group()
+        self.blizzard_group=pygame.sprite.Group()
+        self.light_storm_group=pygame.sprite.Group()
 
     def recordTiles(self, tileFile): # create a dictionary of terrain tiles from the tiles.txt file
         """Seeks usable tiles."""
@@ -312,7 +316,23 @@ class dungeonManager(object):
             # Initialize and add the fireball animation
             tsunami = Tsunami(start_position, target_position, self)
             self.tsunami_group.add(tsunami)
+        elif attack_type == "Flame Burst" and start_position:
+            # Initialize and add the fireball animation
+            flame = Flameburst(target_position, self)
+            self.flame_burst_group.add(flame)
+        elif attack_type == "Ice Spike" and start_position:
+            # Initialize and add the fireball animation
+            ice = Icespike(target_position, self)
+            self.ice_spike_group.add(ice)
+        elif attack_type == "Blizzard" and start_position:
+            # Initialize and add the fireball animation
+            bli = Blizzard(start_position, target_position, self)
+            self.blizzard_group.add(bli)
 
+        elif attack_type == "Lightning Storm" and start_position:
+            # Initialize and add the fireball animation
+            sto = Lightstorm(target_position, self)
+            self.light_storm_group.add(sto)
 
 
 
@@ -367,57 +387,47 @@ class Fireball(pygame.sprite.Sprite):
                 self.finished = True
                 self.kill()
 
-class Tsunami2(pygame.sprite.Sprite):
-    def __init__(self, start_position, target_position, dungeon_manager):
+class Flameburst(pygame.sprite.Sprite):
+    def __init__(self, target_position, dungeon_manager):
         super().__init__()
         self.dungeon_manager = dungeon_manager
 
-        # Load tsunami images for animation
-        self.images = []
-        for i in range(1, 5):  # Assuming 4 frames for the animation
-            img = pygame.image.load(f'images/tsunami/tsu{i}.png')
-            img = pygame.transform.scale(img, (50, 50))  # Adjust size as needed
-            self.images.append(img)
+        # Load flame burst images for animation
+        self.images = [
+            pygame.transform.scale(
+                pygame.image.load(f'images/fireburst/flame_burst{i}.png'), (30, 30)
+            ) for i in range(6)
+        ]
 
         self.index = 0
         self.image = self.images[self.index]
         self.rect = self.image.get_rect()
 
-        # Get isometric screen positions
-        self.start_x, self.start_y = self.dungeon_manager.get_isometric_position(*start_position)
+        # Get the exact isometric position for the target
         self.target_x, self.target_y = self.dungeon_manager.get_isometric_position(*target_position)
 
-        # Set initial position
-        self.current_x = float(self.start_x)
-        self.current_y = float(self.start_y)
+        # Apply a vertical offset for positioning (if needed)
+        self.target_y -= 10
+        self.target_x += 17  # Adjust for image alignment
+        self.rect.center = (self.target_x, self.target_y)
 
-        # Calculate distance and steps
-        self.total_distance = math.sqrt((self.target_x - self.start_x) ** 2 + (self.target_y - self.start_y) ** 2)
-        self.steps = 15  # Total animation steps
-        self.step_x = (self.target_x - self.start_x) / self.steps
-        self.step_y = (self.target_y - self.start_y) / self.steps
-
-        self.step_counter = 0
-        self.frame_duration = 4  # Number of steps each frame lasts
+        self.counter = 0
         self.finished = False
 
     def update(self):
         if not self.finished:
-            # Move the fireball
-            self.current_x += self.step_x
-            self.current_y += self.step_y
-            self.rect.center = (self.current_x, self.current_y)
+            # Display the animation frame-by-frame
+            if self.counter % 1 == 0:  # Adjust frame delay for animation speed
+                if self.index < len(self.images) - 1:
+                    self.index += 1
+                    self.image = self.images[self.index]
+                else:
+                    self.finished = True
+                    self.kill()  # Remove the sprite when animation ends
 
-            # Update frame based on step count
-            if self.step_counter % self.frame_duration == 0 and self.index < len(self.images) - 1:
-                self.index += 1
-                self.image = self.images[self.index]
+            # Increment the counter for frame delay
+            self.counter += 1
 
-            # Check if the fireball has reached the target
-            self.step_counter += 1
-            if self.step_counter >= self.steps:
-                self.finished = True
-                self.kill()
 
 class Tsunami(pygame.sprite.Sprite):
     def __init__(self, start_position, target_position, dungeon_manager):
@@ -428,7 +438,7 @@ class Tsunami(pygame.sprite.Sprite):
         self.images = []
         for i in range(1, 5):  # Assuming 4 frames for the explosion
             img = pygame.image.load(f'images/tsunami/tsu{i}.png')
-            img = pygame.transform.scale(img, (50, 50))  # Adjust fireball size
+            img = pygame.transform.scale(img, (60, 60))  # Adjust fireball size
             self.images.append(img)
 
         self.index = 0
@@ -470,9 +480,134 @@ class Tsunami(pygame.sprite.Sprite):
                 self.finished = True
                 self.kill()
 
+class Icespike(pygame.sprite.Sprite):
+    def __init__(self, target_position, dungeon_manager):
+        super().__init__()
+        self.dungeon_manager = dungeon_manager
+
+        # Load flame burst images for animation
+        self.images = [
+            pygame.transform.scale(
+                pygame.image.load(f'images/icespike/ice_spike{i}.png'), (40, 40)
+            ) for i in range(12)
+        ]
+
+        self.index = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+
+        # Get the exact isometric position for the target
+        self.target_x, self.target_y = self.dungeon_manager.get_isometric_position(*target_position)
+
+        # Apply a vertical offset for positioning (if needed)
+        self.target_y -= 10
+        self.target_x += 17  # Adjust for image alignment
+        self.rect.center = (self.target_x, self.target_y)
+
+        self.counter = 0
+        self.finished = False
+
+    def update(self):
+        if not self.finished:
+            # Display the animation frame-by-frame
+            if self.counter % 1 == 0:  # Adjust frame delay for animation speed
+                if self.index < len(self.images) - 1:
+                    self.index += 1
+                    self.image = self.images[self.index]
+                else:
+                    self.finished = True
+                    self.kill()  # Remove the sprite when animation ends
 
 
 
 
 
 
+class Blizzard(pygame.sprite.Sprite):
+    def __init__(self, start_position, target_position, dungeon_manager):
+        super().__init__()
+        self.dungeon_manager = dungeon_manager
+
+        # Load fireball images for animation
+        self.images = []
+        for i in range(0, 9):  # Assuming  frames for the explosion
+            img = pygame.image.load(f'images/blizzard/blizzard{i}.png')
+            img = pygame.transform.scale(img, (50, 50))  # Adjust fireball size
+            self.images.append(img)
+
+        self.index = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+
+        # Get screen positions for start and target
+        self.start_x, self.start_y = self.dungeon_manager.get_isometric_position(*start_position)
+        self.target_x, self.target_y = self.dungeon_manager.get_isometric_position(*target_position)
+
+        # Set fireball position to start
+        self.current_x = float(self.start_x)
+        self.current_y = float(self.start_y)
+
+        # Calculate total distance and step increments
+        self.total_distance = math.sqrt((self.target_x - self.start_x) ** 2 + (self.target_y - self.start_y) ** 2)
+        self.steps = 8  # Adjust for animation smoothness
+        self.step_x = (self.target_x - self.start_x) / self.steps
+        self.step_y = (self.target_y - self.start_y) / self.steps
+
+        self.counter = 0
+        self.finished = False
+
+    def update(self):
+        if not self.finished:
+            # Move the fireball
+            self.current_x += self.step_x
+            self.current_y += self.step_y
+            self.rect.center = (self.current_x, self.current_y)
+
+            # Update the animation frame
+            if self.counter % 1 == 0 and self.index < len(self.images) - 1:
+                self.index += 1
+                self.image = self.images[self.index]
+
+            # Check if the fireball reached the target
+            self.counter += 1
+            if self.counter >= self.steps:
+                self.finished = True
+                self.kill()
+
+class Lightstorm(pygame.sprite.Sprite):
+    def __init__(self, target_position, dungeon_manager):
+        super().__init__()
+        self.dungeon_manager = dungeon_manager
+
+        # Load flame burst images for animation
+        self.images = [
+            pygame.transform.scale(
+                pygame.image.load(f'images/lightstorm/New Piskel-{i}.png.png'), (60, 60)
+            ) for i in range(1,8)
+        ]
+
+        self.index = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+
+        # Get the exact isometric position for the target
+        self.target_x, self.target_y = self.dungeon_manager.get_isometric_position(*target_position)
+
+        # Apply a vertical offset for positioning (if needed)
+        self.target_y -= 25
+        self.target_x += 17  # Adjust for image alignment
+        self.rect.center = (self.target_x, self.target_y)
+
+        self.counter = 0
+        self.finished = False
+
+    def update(self):
+        if not self.finished:
+            # Display the animation frame-by-frame
+            if self.counter % 1 == 0:  # Adjust frame delay for animation speed
+                if self.index < len(self.images) - 1:
+                    self.index += 1
+                    self.image = self.images[self.index]
+                else:
+                    self.finished = True
+                    self.kill()

@@ -112,16 +112,41 @@ class spriteManager(object):
                 self.sprite = self.spriteFrontRight
 
     def draw_health_bar(self, screen):
-        bar_width = 50
-        bar_height = 5
+        """Dessine une barre de vie avec un contour, fond gris et couleur dynamique."""
+        bar_width = 60
+        bar_height = 8
         bar_x = self.healthBarePosition[0]
         bar_y = self.healthBarePosition[1]
-        fill_width = int((self.health / self.max_health) * bar_width)
 
-        #print(f"this is the bar position: {bar_x, bar_y}")
-        # Draw the bar
-        pygame.draw.rect(screen, (255, 0, 0), (bar_x, bar_y, bar_width, bar_height))  # Red for max health
-        pygame.draw.rect(screen, (0, 255, 0), (bar_x, bar_y, fill_width, bar_height))
+        # Calcul du remplissage de la barre
+        fill_width = int((self.health / self.max_health) * bar_width)
+        
+        # Choix de couleur pour la barre de vie selon le niveau
+        if self.health / self.max_health > 0.6:
+            health_color = (0, 255, 0)  # Vert
+        elif self.health / self.max_health > 0.3:
+            health_color = (255, 165, 0)  # Orange
+        else:
+            health_color = (255, 0, 0)  # Rouge
+
+        # Dessine le contour avec des coins arrondis
+        pygame.draw.rect(screen, (50, 50, 50), (bar_x - 1, bar_y - 1, bar_width + 2, bar_height + 2), border_radius=4)
+
+        # Dessine le fond de la barre (gris foncé)
+        pygame.draw.rect(screen, (80, 80, 80), (bar_x, bar_y, bar_width, bar_height), border_radius=4)
+
+        # Dessine la barre de vie remplie avec la couleur dynamique
+        pygame.draw.rect(screen, health_color, (bar_x, bar_y, fill_width, bar_height), border_radius=4)
+
+
+
+        
+
+
+
+
+
+
         # Green for current health
 
 
@@ -161,17 +186,36 @@ class spriteManager(object):
     def draw_menu(self, screen):
         if not self.menu_open:
             return 
-        # Menu background
-        menu_rect = pygame.Rect(50, 50, 200, 150)
-        pygame.draw.rect(screen, (0, 0, 0), menu_rect)
-        pygame.draw.rect(screen, (255, 255, 255), menu_rect, 2)
-    
+
+        # Menu background with rounded corners
+        menu_rect = pygame.Rect(75, 75, 200, 150)  # Smaller dimensions
+        menu_surface = pygame.Surface((menu_rect.width, menu_rect.height), pygame.SRCALPHA)
+        pygame.draw.rect(menu_surface, (0, 0, 0, 200), menu_surface.get_rect(), border_radius=15)  # Semi-transparent background
+        pygame.draw.rect(menu_surface, (255, 255, 255), menu_surface.get_rect(), 2, border_radius=15)  # White border
+        screen.blit(menu_surface, (menu_rect.x, menu_rect.y))
+        
+        # Title for the menu
+        title_font = pygame.font.Font(None, 36)
+        title_surface = title_font.render("Attack Menu", True, (173, 216, 230))  # Light blue title color
+        title_rect = title_surface.get_rect(center=(menu_rect.x + menu_rect.width // 2, menu_rect.y + 20))
+        screen.blit(title_surface, title_rect)
+
         # Menu options
-        font = pygame.font.Font(None, 36)
+        option_font = pygame.font.Font(None, 28)  # Slightly smaller font for the options
         for i, attack in enumerate(self.attacks):
-            color = (255, 255, 255) if self.selected_attack == i else (150, 150, 150)
-            text_surface = font.render(attack, True, color)
-            screen.blit(text_surface, (menu_rect.x + 10, menu_rect.y + 10 + i*30))
+            is_selected = self.selected_attack == i
+            color = (255, 255, 255) if is_selected else (150, 150, 150)
+            bg_color = (0, 100, 255) if is_selected else (0, 0, 0, 0)
+
+            # Draw a background rectangle for selected option
+            option_rect = pygame.Rect(menu_rect.x + 10, menu_rect.y + 40 + i * 35, menu_rect.width - 20, 30)
+            pygame.draw.rect(screen, bg_color, option_rect, border_radius=10)
+            
+            # Render the text
+            text_surface = option_font.render(attack, True, color)
+            text_rect = text_surface.get_rect(center=option_rect.center)
+            screen.blit(text_surface, text_rect)
+
 
 
 
