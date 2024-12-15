@@ -381,16 +381,11 @@ class Game:
         new_zone_position = None
         
         while True:
-
-
-
-
             pygame.event.pump()  # updating the events queue from the os
             key_input = pygame.key.get_pressed()
 
             current_time = pygame.time.get_ticks()
             # print(current_time)
-
 
 
             # Handle zone things
@@ -563,8 +558,8 @@ class Game:
                         active_player_index = (active_player_index + 1) % len(players)
                         players[active_player_index].set_active(True)
                         last_turn_switch_time = current_time
-                            # Increment player score
-                            #players[active_player_index].score += 1
+                        # Increment player score
+                        #players[active_player_index].score += 1
 
             
             highlighted_positions = self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected, selected_attack, players[active_player_index].played)
