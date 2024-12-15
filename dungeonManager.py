@@ -168,7 +168,7 @@ class dungeonManager(object):
 
             # Health bar rendering
             if is_active and sprite.mapPosition == [self._col, self._row]:
-                sprite.healthBarePosition = [self._centeredItemX + self._stepX - 6, self._stepY - 20 - int(self.elevation[self._col][self._row]) * 20]
+                sprite.healthBarePosition = [self._centeredItemX + self._stepX - 6, self._stepY - 25 - int(self.elevation[self._col][self._row]) * 20]
                 sprite.draw_health_bar(screen)
 
 
@@ -217,7 +217,7 @@ class dungeonManager(object):
 
             # Health bar rendering
             if monster.mapPosition == [self._col, self._row]:
-                monster.healthBarePosition = [self._centeredItemX + self._stepX - 6, self._stepY - 20 - int(self.elevation[self._col][self._row]) * 20]
+                monster.healthBarePosition = [self._centeredItemX + self._stepX - 6, self._stepY - 25 - int(self.elevation[self._col][self._row]) * 20]
                 monster.draw_health_bar(screen)
 
             # Move to the next tile in the row

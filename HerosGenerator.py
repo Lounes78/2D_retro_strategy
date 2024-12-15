@@ -48,7 +48,6 @@ class FireSprite(spriteManager):
     def perform_special_attack(self, target):
         print(f"{self.name} casts {self.attacks[self.selected_attack]} at {target.mapPosition}!")
 
-        # Set base damage value and initial burn duration based on skill type
         if self.attacks[self.selected_attack] == "Fireball":
             base_damage = 20
             base_burn_duration = 1
@@ -56,10 +55,8 @@ class FireSprite(spriteManager):
             base_damage = 10
             base_burn_duration = 3
 
-        # Calculate damage and effects
         damage, burn_turn, freeze_turn, paralyze_turn,slow_turn = calculate_damage_and_effect(self, target, base_damage, burn=base_burn_duration)
 
-        # Apply damage or healing
         if damage < 0:
             target.health -= damage
             print(f"{target.name} heals for {-damage} HP!")
@@ -83,7 +80,6 @@ class IceSprite(spriteManager):
     def perform_special_attack(self, target):
         print(f"{self.name} summons a {self.selected_attack} on {target.mapPosition}!")
 
-        # Set base damage value and initial burn duration based on skill type
         if self.attacks[self.selected_attack] == "Ice Spike":
             base_damage = 20
             base_frozen_duration = 1
@@ -91,10 +87,8 @@ class IceSprite(spriteManager):
             base_damage = 10
             base_frozen_duration = 3
 
-        # Calculate damage and effects
         damage, burn_turn, freeze_turn, paralyze_turn,slow_turn = calculate_damage_and_effect(self, target, base_damage, freeze=base_frozen_duration)
 
-        # Apply damage or healing
         if damage < 0:
             target.health -= damage
             print(f"{target.name} heals for {-damage} HP!")
@@ -129,22 +123,18 @@ class ThunderSprite(spriteManager):
             base_damage = 10
             base_paralyze_duration = 3  # 3 turn
 
-        # Calculate damage and effects
         damage, burn_turn, freeze_turn, paralyze_turn,slow_turn = calculate_damage_and_effect(self, target, base_damage, paralyze=base_paralyze_duration)
 
-        # Apply damage or healing
         if damage < 0:
             target.health -= damage
             print(f"{target.name} heals for {-damage} HP!")
         else:
             target.take_damage(damage)
 
-        # Apply status effects
         if paralyze_turn > 0:
             target.apply_status_effect("Paralyze", paralyze_turn)
 
 
-# Create character instances
 
 def create_characters(dungeon, media):
     characters = []

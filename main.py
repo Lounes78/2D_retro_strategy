@@ -68,6 +68,7 @@ class Game:
     def __init__(self):
         pygame.init()
         # self.highlighted_positions = set()
+        self.score_to_win = 250
         self.n_winning_units = 0
         self.add_zone = False # Check if we should add a zone
         self.already_occupied = []
@@ -254,7 +255,7 @@ class Game:
         pygame.time.delay(500)
         self.sound.music.stop()
         self.sound = self.media.loadSound(os.path.join('data', 'music', 'bjorn__lynne-_the_long_journey_home.mid'))
-        # self.sound.music.play(-1)
+        self.sound.music.play(-1)
         
         # Initial version of the map
         self.file_path = "data/maps/firstDungeon.txt"
@@ -292,6 +293,25 @@ class Game:
         pygame.display.update()
         
         
+    
+        
+    def game_over(self, winner):    
+        font = pygame.font.SysFont("Courier New", 50)
+        if winner == 0:
+            text = "Dracko wins!"
+            color = (135, 206, 250)
+        else:
+            text = "Ketchum wins!"  
+            color = (255, 69, 0)
+
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2))
+
+        self.screen.fill((0, 0, 0))  
+        self.screen.blit(text_surface, text_rect)
+        pygame.display.flip()
+
+        pygame.time.wait(5000)  
         
         
     def handle_zone(self, players, new_zone_position=None):        
@@ -645,6 +665,21 @@ class Game:
             #position = (200, 150)  # Position de l'image
 
             #self.dungeon_manager.display_image_for_one_second([0,0])
+            
+            
+            
+            # Game Over mechanics
+            if players[0].score >= self.score_to_win:
+                self.game_over(winner=0)
+                break
+            elif players[1].score >= self.score_to_win:
+                self.game_over(winner=1)
+                break
+            
+            
+            
+            
+            
             pygame.display.update()
 
 

@@ -123,30 +123,24 @@ class spriteManager(object):
                 self.sprite = self.spriteFrontRight
 
     def draw_health_bar(self, screen):
-        """Dessine une barre de vie avec un contour, fond gris et couleur dynamique."""
         bar_width = 60
         bar_height = 8
         bar_x = self.healthBarePosition[0]
         bar_y = self.healthBarePosition[1]
 
-        # Calcul du remplissage de la barre
         fill_width = int((self.health / self.max_health) * bar_width)
         
-        # Choix de couleur pour la barre de vie selon le niveau
         if self.health / self.max_health > 0.6:
-            health_color = (0, 255, 0)  # Vert
+            health_color = (0, 255, 0)  
         elif self.health / self.max_health > 0.3:
-            health_color = (255, 165, 0)  # Orange
+            health_color = (255, 165, 0)  
         else:
-            health_color = (255, 0, 0)  # Rouge
+            health_color = (255, 0, 0)  
 
-        # Dessine le contour avec des coins arrondis
         pygame.draw.rect(screen, (50, 50, 50), (bar_x - 1, bar_y - 1, bar_width + 2, bar_height + 2), border_radius=4)
 
-        # Dessine le fond de la barre (gris foncé)
         pygame.draw.rect(screen, (80, 80, 80), (bar_x, bar_y, bar_width, bar_height), border_radius=4)
 
-        # Dessine la barre de vie remplie avec la couleur dynamique
         pygame.draw.rect(screen, health_color, (bar_x, bar_y, fill_width, bar_height), border_radius=4)
 
 
