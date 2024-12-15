@@ -21,7 +21,7 @@ class WaterSprite(spriteManager):
             base_slow_duration = 1
         elif self.attacks[self.selected_attack] == "Tsunami Wave":
             base_damage = 30
-            base_slow_duration = 3
+            base_slow_duration = 2
 
         # Calculate damage and effects
         damage, burn_turn, freeze_turn, paralyze_turn,slow_turn = calculate_damage_and_effect(self, target, base_damage, slow=base_slow_duration)
