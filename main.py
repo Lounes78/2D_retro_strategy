@@ -68,7 +68,7 @@ class Game:
     def __init__(self):
         pygame.init()
         # self.highlighted_positions = set()
-        self.score_to_win = 250
+        self.score_to_win = 5000
         self.n_winning_units = 0
         self.add_zone = False # Check if we should add a zone
         self.already_occupied = []
@@ -311,8 +311,7 @@ class Game:
         self.screen.blit(text_surface, text_rect)
         pygame.display.flip()
 
-        pygame.time.wait(5000)  
-        
+        self.poll_events_with_timeout(5000)
         
     def handle_zone(self, players, new_zone_position=None):        
         # Updating the map if necessary
@@ -675,10 +674,7 @@ class Game:
             elif players[1].score >= self.score_to_win:
                 self.game_over(winner=1)
                 break
-            
-            
-            
-            
+        
             
             pygame.display.update()
 
