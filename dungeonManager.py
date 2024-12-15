@@ -37,17 +37,13 @@ class dungeonManager(object):
                 sys.exit()
 
     def recordNonWalkableTiles(self, nwtFile):
-
         self.nwTiles = []
         for line in nwtFile:
             for char in line:
-                # if not ord(char) is 10: # ord(10) is the ascii code for '\n'
                 if char != '\n': # less fancy
                     self.nwTiles.append(char)
 
     def recordDungeon(self, dungeonFile):
-        """Records a dungeon."""
-
         self._row = []
         self._rowTwo = []                                           # line 1         line 2    etc
         self.dungeon = [] # For terrain data EX: self.dungeon = [['G', 'G', 'M'], ['M', 'G' etc]]
@@ -69,7 +65,7 @@ class dungeonManager(object):
 
 
 
-    def fillDungeon_tiles(self, unit_positions, target_position = False,selected_attack=None, played=False, move_range = 2):
+    def fillDungeon_tiles(self, unit_positions, target_position = False,selected_attack=None, played=False, monsters=None, move_range = 2):
         """Render only the tiles of the dungeon."""
         self._stepX = 0 # en pixel
         self._stepY = 150
@@ -82,12 +78,14 @@ class dungeonManager(object):
         self._centeredItemX = self._windowManager.centerItemX(self._dict[self.dungeon[self._col][self._row]]) + 20
                         
         highlight_positions = set()
+        for monster in monsters:
+            highlight_positions.add(tuple(monster.mapPosition))
         if played == 0:    
             row, col = unit_positions
             if not target_position:
                 for dr in range(-move_range, move_range + 1):
                     for dc in range(-move_range, move_range + 1):
-                        if abs(dr) + abs(dc) <= move_range:  # Limit to a radius of 2 tiles
+                        if abs(dr) + abs(dc) <= move_range:  
                             highlight_positions.add((row + dr, col + dc))
             else:
                 highlight_positions.add((row, col))

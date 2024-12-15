@@ -151,14 +151,14 @@ def create_characters(dungeon, media):
 
     # the heros of first group
     characters.append(WaterSprite(dungeon, media, [0, 0], "Aqua Warrior")) #eau
-    characters.append(FireSprite(dungeon, media, [0, 2], "Flame Knight")) #feu
-    characters.append(IceSprite(dungeon, media, [0, 4], "Frost Guardian")) #ice
-    characters.append(ThunderSprite(dungeon, media, [0, 6], "Storm Hunter")) #thunder
+    characters.append(FireSprite(dungeon, media, [0, 3], "Flame Knight")) #feu
+    characters.append(IceSprite(dungeon, media, [0, 6], "Frost Guardian")) #ice
+    characters.append(ThunderSprite(dungeon, media, [0, 9], "Storm Hunter")) #thunder
 
     # the heros in the second group
     characters.append(WaterSprite(dungeon, media, [20, 0], "Wave Rider"))
-    characters.append(FireSprite(dungeon, media, [20, 2], "Blaze Mage"))
-    characters.append(IceSprite(dungeon, media, [20, 4], "Snow Sorcerer"))
-    characters.append(ThunderSprite(dungeon, media, [20, 6], "Lightning Avenger"))
+    characters.append(FireSprite(dungeon, media, [20, 3], "Blaze Mage"))
+    characters.append(IceSprite(dungeon, media, [20, 6], "Snow Sorcerer"))
+    characters.append(ThunderSprite(dungeon, media, [20, 9], "Lightning Avenger"))
 
     return characters
