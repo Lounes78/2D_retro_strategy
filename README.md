@@ -25,9 +25,23 @@ Les highlighted tiles se comportent mal
 --- debuff system :
 - **Burning**: Take small damage over time.✅
 - **Frozen**: Cannot move or attack.  ✅
-- **Paralysis**: probable inability to move
+- **Paralysis**: probable inability to move ✅
 
 --- All statements outputting monsters' position information (e.g., `print(f"Monster {self.name} moving from {self.mapPosition} to [{new_row}, {new_col}]")`) have been commented out to ensure that the debugging process remains clear and easy to read.
+
+
+### Skills, Damage, and Debuff Effects  ✅
+
+| **Element** | **Skill**         | **Base Damage** | **Debuff Effect**     |
+|-------------|-------------------|-----------------|-----------------------|
+| **Water**   | Water Splash      | 20              | None                  |
+|             | Tsunami Wave      | 30              | None                  |
+| **Fire**    | Fireball          | 20              | Burn (1 turn)         |
+|             | Flame Burst       | 10              | Burn (3 turns)        |
+| **Ice**     | Ice Spike         | 20              | Frozen (1 turn)       |
+|             | Blizzard          | 10              | Frozen (3 turns)      |
+| **Thunder** | Thunder Strike    | 20              | Paralyze (1 turn)     |
+|             | Lightning Storm   | 10              | Paralyze (3 turns)    |
 
 
 ### Attribute Resistance System ✅
