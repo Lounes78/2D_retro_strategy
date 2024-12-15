@@ -460,44 +460,6 @@ class Game:
                                 players[active_player_index].take_turn(0, current_unit_index, highlighted_positions, active_unit.mapPosition)
 
 
-                    """def can_act(unit):
-                        if active_unit.is_frozen:
-                            print(f"{unit.name} is frozen and cannot take actions this turn.")
-                            return False
-                        elif active_unit.is_paralyze:
-                            if random.random() < 0.5:  # 50% chance
-                                print(f"{active_unit.name} is paralyzed and cannot take actions this turn.")
-                                return False
-                            else:
-                                print(f"{active_unit.name} resists paralysis and can act this turn!")
-                        return True
-                        # Handle movement inputs (K_UP, K_DOWN, K_LEFT, K_RIGHT)
-                    if key_input[K_UP]:
-                        if can_act(active_unit):  # Check if the unit can act
-                            players[active_player_index].take_turn(1, current_unit_index, highlighted_positions,
-                                                                       active_unit.mapPosition)
-
-                    elif key_input[K_DOWN]:
-                        if can_act(active_unit):  # Check if the unit can act
-                            players[active_player_index].take_turn(2, current_unit_index, highlighted_positions,
-                                                                       active_unit.mapPosition)
-
-                    elif key_input[K_LEFT]:
-                        if can_act(active_unit):  # Check if the unit can act
-                            players[active_player_index].take_turn(3, current_unit_index, highlighted_positions,
-                                                                       active_unit.mapPosition)
-
-                    elif key_input[K_RIGHT]:
-                        if can_act(active_unit):  # Check if the unit can act
-                            players[active_player_index].take_turn(4, current_unit_index, highlighted_positions,
-                                                                       active_unit.mapPosition)
-
-                    # Handle end-turn input (K_SPACE)
-                    elif key_input[K_SPACE]:
-                        players[active_player_index].take_turn(0, current_unit_index, highlighted_positions,
-                                                                   active_unit.mapPosition)"""
-
-
                 """else:
                     print(f"{active_unit.name} is frozen and cannot take actions this turn.")"""
                 self.target_position_sprite.mapPosition = [active_unit.mapPosition[0], active_unit.mapPosition[1]]
