@@ -3,7 +3,7 @@ import os
 import pygame
 from pygame.locals import *
 from Type_Effectiveness import calculate_damage_and_effect
-from spriteManager import spriteManager  # 引用父类
+from spriteManager import spriteManager  # Inherits from the parent class
 
 # define the son class of water
 class WaterSprite(spriteManager):
@@ -15,7 +15,6 @@ class WaterSprite(spriteManager):
 
     def perform_special_attack(self, target):
         print(f"{self.name} unleashes a {self.attacks[1]} at {target.mapPosition}!")
-        target.take_damage(40)  # 独特技能造成 40 点伤害
 
         if self.attacks[self.selected_attack] == "Water Splash":
             base_damage = 20

@@ -169,8 +169,8 @@ class spriteManager(object):
 
                 if self.attacks[self.selected_attack] == "Defense":
                     print(f"{self.name} is defending this turn!")
-                    self.defense = True  # 激活防御状态
-                    self.menu_open = False  # 关闭菜单
+                    self.defense = True  # active defense status
+                    self.menu_open = False
                     return attack_position
                 else:
                     self.attack_selected = True
@@ -231,9 +231,9 @@ class spriteManager(object):
         """----------------------------------------test-----------------------------------------------"""
     def apply_status_effect(self, effect_name, duration):
         """
-        施加一个状态效果。
-        :param effect_name: 状态名称，例如 "Frozen", "Burning", "Slowed"
-        :param duration: 状态持续的回合数
+        Applies a status effect to the target.
+        :param effect_name: The name of the status effect, e.g., "Frozen", "Burning", "Slowed".
+        :param duration: The number of turns the effect will last.
         """
         self.status_effects[effect_name] = duration
         if effect_name == "Burn":
@@ -245,7 +245,7 @@ class spriteManager(object):
 
     def update_status_effects(self):
         """
-        每回合更新状态效果，例如减少持续时间，取消到期的效果。
+        Updates status effects each turn, such as reducing their duration and removing expired effects.
         """
         expired_effects = []
 
@@ -269,7 +269,7 @@ class spriteManager(object):
 
         # Persistent damage for burning
         if self.is_burning:
-            self.take_damage(10)  # 每回合燃烧扣10点血量
+            self.take_damage(10)
             print(f"{self.name} is burned!")
 
         # Frozen effect: Cannot move
