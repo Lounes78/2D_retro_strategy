@@ -69,7 +69,7 @@ class dungeonManager(object):
 
 
 
-    def fillDungeon_tiles(self, unit_positions, target_position = False,selected_attack=None, played=False):
+    def fillDungeon_tiles(self, unit_positions, target_position = False,selected_attack=None, played=False, move_range = 2):
         """Render only the tiles of the dungeon."""
         self._stepX = 0 # en pixel
         self._stepY = 150
@@ -85,9 +85,9 @@ class dungeonManager(object):
         if played == 0:    
             row, col = unit_positions
             if not target_position:
-                for dr in [-2, -1, 0,1,2]:
-                    for dc in [-2, -1, 0,1,2]:
-                        if abs(dr) + abs(dc) <= 2:  # Limit to a radius of 2 tiles
+                for dr in range(-move_range, move_range + 1):
+                    for dc in range(-move_range, move_range + 1):
+                        if abs(dr) + abs(dc) <= move_range:  # Limit to a radius of 2 tiles
                             highlight_positions.add((row + dr, col + dc))
             else:
                 highlight_positions.add((row, col))

@@ -567,7 +567,7 @@ class Game:
                             #players[active_player_index].score += 1
 
             
-            highlighted_positions = self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected, selected_attack, players[active_player_index].played)
+            highlighted_positions = self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected, selected_attack, players[active_player_index].played, active_unit.move_range)
             # print(highlighted_positions)
             # Updates the units
             for player in players:

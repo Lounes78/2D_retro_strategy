@@ -4,7 +4,7 @@ from pygame.locals import *
 
 class spriteManager(object):
 
-    def __init__(self, dungeon, media, mapPosition):
+    def __init__(self, dungeon, media, mapPosition, move_range = 2):
         self.menu_open = False
         self.attacks = ["Fireball", "Ice Spike", "Thunder Strike"]
         self.selected_attack = 0
@@ -20,8 +20,8 @@ class spriteManager(object):
         self.Trigger_paralysis = False # use to check paralyze status
         self.element_type = "Neutral"
         self.defense = False
+        self.move_range = move_range
 
-        self.max_move = 2
         
         self.marked_for_removal = False
         #self.removal_time = None

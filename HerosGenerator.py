@@ -8,7 +8,7 @@ from spriteManager import spriteManager  # Inherits from the parent class
 # define the son class of water
 class WaterSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
-        super().__init__(dungeon, media, mapPosition)
+        super().__init__(dungeon, media, mapPosition,move_range = 4)
         self.name = name
         self.attacks = ["Water Splash", "Tsunami Wave","Defense"]
         self.element_type = "Water"
@@ -34,7 +34,7 @@ class WaterSprite(spriteManager):
 # define the son class of fire
 class FireSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
-        super().__init__(dungeon, media, mapPosition)
+        super().__init__(dungeon, media, mapPosition, move_range = 2)
         self.name = name
         self.attacks = ["Fireball", "Flame Burst","Defense"]
         self.element_type = "Fire"
@@ -68,7 +68,7 @@ class FireSprite(spriteManager):
 # define the son class of ice
 class IceSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
-        super().__init__(dungeon, media, mapPosition)
+        super().__init__(dungeon, media, mapPosition,move_range = 1)
         self.name = name
         self.attacks = ["Ice Spike", "Blizzard","Defense"]
         self.element_type = "Ice"
@@ -106,7 +106,7 @@ class IceSprite(spriteManager):
 # define the son class of thunder
 class ThunderSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
-        super().__init__(dungeon, media, mapPosition)
+        super().__init__(dungeon, media, mapPosition,move_range = 1)
         self.name = name
         self.attacks = ["Thunder Strike", "Lightning Storm","Defense"]
         self.element_type = "Thunder"
