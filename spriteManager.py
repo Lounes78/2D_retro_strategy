@@ -131,11 +131,6 @@ class spriteManager(object):
         pygame.draw.rect(screen, (0, 255, 0), (bar_x, bar_y, fill_width, bar_height))
         # Green for current health
 
-
-
-    def take_damage(self, damage):
-        self.health = max(0, self.health - damage)
-
     def is_alive(self):
         return self.health > 0
 
@@ -143,6 +138,12 @@ class spriteManager(object):
         return not(self.is_alive())
 
 
+    def take_damage(self, damage):
+        self.health = max(0, self.health - damage)
+        if self.health <= 0:
+            self.marked_for_removal = True
+            if not hasattr(self, 'removal_time') or self.removal_time is None:
+                self.removal_time = pygame.time.get_ticks()  # 初始化移除时间
 
     def handle_attacks(self, key_input, screen, attack_position):
         if key_input[K_m]:
@@ -258,7 +259,7 @@ class spriteManager(object):
 
         # Persistent damage for burning
         if self.is_burning:
-            self.take_damage(10)  # 每回合燃烧扣20点血量
+            self.take_damage(10)  # 每回合燃烧扣10点血量
             print(f"{self.name} is burned!")
 
         # Frozen effect: Cannot move

@@ -45,7 +45,7 @@ class FireSprite(spriteManager):
 
         # Set base damage value and initial burn duration based on skill type
         if self.attacks[self.selected_attack] == "Fireball":
-            base_damage = 20
+            base_damage = 25
             base_burn_duration = 1
         elif self.attacks[self.selected_attack] == "Flame Burst":
             base_damage = 10
