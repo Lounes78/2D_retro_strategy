@@ -380,8 +380,8 @@ class Game:
             self.handle_zone(players, new_zone_position)
 
 
-            
-            
+
+
             # Handle unit switching within the active player
             if key_input[K_TAB]:
                 current_unit_index = (current_unit_index + 1) % len(players[active_player_index].sprite_managers)
@@ -458,8 +458,8 @@ class Game:
                                 print(f"{active_unit.name} is frozen and cannot take actions this turn.")
                             else :
                                 players[active_player_index].take_turn(0, current_unit_index, highlighted_positions, active_unit.mapPosition)
-
-
+                            for enemy_sprite in players[not (active_player_index)].sprite_managers:
+                                enemy_sprite.defense = False
                 """else:
                     print(f"{active_unit.name} is frozen and cannot take actions this turn.")"""
                 self.target_position_sprite.mapPosition = [active_unit.mapPosition[0], active_unit.mapPosition[1]]
@@ -482,6 +482,15 @@ class Game:
 
             attack_position = active_unit.handle_attacks(key_input, self.screen, unit_position)  # ou est ce que tu as appuyé sur entrée quand tu geres une suile pour lattaque
             # print(active_unit.selected_attack)
+            if active_unit.defense:
+                attack_position = None
+                # change the player once defense
+                players[active_player_index].played = 0
+                players[active_player_index].set_active(False)
+                active_player_index = (active_player_index + 1) % len(players)
+                players[active_player_index].set_active(True)
+                last_turn_switch_time = current_time
+                #print(f"{active_unit.name} is defense and cannot take actions this turn.")
             selected_attack = active_unit.attacks[active_unit.selected_attack]
             # print(f"selected attack{selected_attack}")
             # find the ennemy and attack it
@@ -496,7 +505,12 @@ class Game:
                     if enemy_sprite.mapPosition == attack_position:
                         # print(f"this is the {attack_position}")
                         if hasattr(active_unit, 'perform_special_attack'):
-                            active_unit.perform_special_attack(enemy_sprite)
+                            print(f"{enemy_sprite.defense}")
+                            if not enemy_sprite.defense :
+                                active_unit.perform_special_attack(enemy_sprite)
+                            else:
+                                print(f"{enemy_sprite.name} is in a defensive state and will not take damage. ")
+                                enemy_sprite.defense = False
                         else:
                             active_unit.perform_attack(30, enemy_sprite)
 
@@ -511,6 +525,7 @@ class Game:
                         active_player_index = (active_player_index + 1) % len(players)
                         players[active_player_index].set_active(True)
                         last_turn_switch_time = current_time
+
                 for monster in self.monsters[:]:
                     
                     if monster.mapPosition == attack_position:
@@ -576,6 +591,8 @@ class Game:
                 if monster.marked_for_removal and pygame.time.get_ticks() - monster.removal_time > 500:
                     self.monsters.remove(monster)
             self.display_scores()
+
+
 
             if key_input[K_ESCAPE] or pygame.event.peek(QUIT):
                 # update_map(self.file_path, None, '*', (8, 10), distance=2)

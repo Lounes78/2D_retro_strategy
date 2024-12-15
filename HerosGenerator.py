@@ -10,7 +10,7 @@ class WaterSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
         super().__init__(dungeon, media, mapPosition)
         self.name = name
-        self.attacks = ["Water Splash", "Tsunami Wave"]
+        self.attacks = ["Water Splash", "Tsunami Wave","Defense"]
         self.element_type = "Water"
 
     def perform_special_attack(self, target):
@@ -37,7 +37,7 @@ class FireSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
         super().__init__(dungeon, media, mapPosition)
         self.name = name
-        self.attacks = ["Fireball", "Flame Burst"]
+        self.attacks = ["Fireball", "Flame Burst","Defense"]
         self.element_type = "Fire"
 
     def perform_special_attack(self, target):
@@ -64,10 +64,6 @@ class FireSprite(spriteManager):
         # Apply status effects
         if burn_turn > 0:
             target.apply_status_effect("Burn", burn_turn)
-        """if freeze > 0:
-            target.apply_status_effect("Frozen", freeze)
-        if paralyze > 0:
-            target.apply_status_effect("Paralyzed", paralyze)"""
 
 
 # define the son class of ice
@@ -75,7 +71,7 @@ class IceSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
         super().__init__(dungeon, media, mapPosition)
         self.name = name
-        self.attacks = ["Ice Spike", "Blizzard"]
+        self.attacks = ["Ice Spike", "Blizzard","Defense"]
         self.element_type = "Ice"
 
 
@@ -113,7 +109,7 @@ class ThunderSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
         super().__init__(dungeon, media, mapPosition)
         self.name = name
-        self.attacks = ["Thunder Strike", "Lightning Storm"]
+        self.attacks = ["Thunder Strike", "Lightning Storm","Defense"]
         self.element_type = "Thunder"
 
 

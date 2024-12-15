@@ -12,12 +12,14 @@ class spriteManager(object):
         self.cursor_target_position = []
         self.target_position = None
 
+        # key parameters for hero design
         self.status_effects = {}
         self.is_frozen = False  # frozen status
         self.is_burning = False  # burn status
         self.is_paralyze = False # paralyze status
         self.Trigger_paralysis = False # use to check paralyze status
         self.element_type = "Neutral"
+        self.defense = False
 
         self.max_move = 2
         
@@ -164,7 +166,15 @@ class spriteManager(object):
             if key_input[K_DOWN] and self.attack_selected == False:
                 self.selected_attack = (self.selected_attack + 1)%len(self.attacks)
             elif key_input[K_RETURN] and self.attack_selected == False:
-                self.attack_selected = True
+
+                if self.attacks[self.selected_attack] == "Defense":
+                    print(f"{self.name} is defending this turn!")
+                    self.defense = True  # 激活防御状态
+                    self.menu_open = False  # 关闭菜单
+                    return attack_position
+                else:
+                    self.attack_selected = True
+
             elif key_input[K_RETURN] and self.attack_selected == True: # ATTACK
                 self.attack_selected = False
                 self.menu_open = False
