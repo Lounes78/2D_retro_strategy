@@ -69,7 +69,7 @@ class dungeonManager(object):
 
 
 
-    def fillDungeon_tiles(self, unit_positions, target_position = False,selected_attack=None, played=False):
+    def fillDungeon_tiles(self, unit_positions, target_position = False,selected_attack=None, played=False, move_range = 2):
         """Render only the tiles of the dungeon."""
         self._stepX = 0 # en pixel
         self._stepY = 150
@@ -85,12 +85,13 @@ class dungeonManager(object):
         if played == 0:    
             row, col = unit_positions
             if not target_position:
-                for dr in [-2, -1, 0,1,2]:
-                    for dc in [-2, -1, 0,1,2]:
-                        if abs(dr) + abs(dc) <= 2:  # Limit to a radius of 2 tiles
+                for dr in range(-move_range, move_range + 1):
+                    for dc in range(-move_range, move_range + 1):
+                        if abs(dr) + abs(dc) <= move_range:  # Limit to a radius of 2 tiles
                             highlight_positions.add((row + dr, col + dc))
             else:
                 highlight_positions.add((row, col))
+
             self.previous_highlight_positions = highlight_positions
 
         else: # utiliser le highlighte_positions precedent
@@ -105,7 +106,7 @@ class dungeonManager(object):
                     self._screen.blit(self._dict["R"], (
                     self._centeredItemX + self._stepX, self._stepY - int(self.elevation[self._col][self._row]) * 20))
                 else:
-                    self._screen.blit(self._dict["R"], (
+                    self._screen.blit(self._dict["W"], (
                     self._centeredItemX + self._stepX, self._stepY - int(self.elevation[self._col][self._row]) * 20))
                     
                     if selected_attack=="Thunder Strike":
@@ -145,6 +146,72 @@ class dungeonManager(object):
                     break
                 
         return highlight_positions
+    
+    def fillDungeon_attack_tiles(self, unit_position, selected_attack,render=False):
+        """
+        Affiche la portée d'attaque avec des tuiles statiques (type F)
+        et retourne les positions mises en surbrillance.
+        """
+        # Définir la portée de l'attaque selon le type d'attaque sélectionnée
+        attack_range = {  # change here for attack range
+            "Water Splash": 1,
+            "Tsunami Wave": 2,
+            "Fireball": 3,
+            "Flame Burst": 1,
+            "Thunder Strike": 4,
+            "Lightning Strom":2,
+            "Ice Spike": 2,
+            "Blizzard": 3
+
+        }.get(selected_attack, 2)  # Par défaut, portée de 2
+
+        # Calculer les positions mises en surbrillance
+        row, col = unit_position
+        highlight_positions = set()
+        for dr in range(-attack_range, attack_range + 1):
+            for dc in range(-attack_range, attack_range + 1):
+                if abs(dr) + abs(dc) <= attack_range:  # Restriction à une zone en losange
+                    highlight_positions.add((row + dr, col + dc))
+        if render:
+            # Parcourir toutes les positions de la carte pour afficher les tuiles
+            self._stepX = 0
+            self._stepY = 150
+            self._rewinderStepX = 0
+            self._rewinderStepY = 150
+            self._row = self._rowTmp
+            self._col = self._colTmp
+            self._patch = 30
+            self._centeredItemX = self._windowManager.centerItemX(self._dict[self.dungeon[self._col][self._row]]) + 20
+
+            while True:
+                current_position = (self._col, self._row)
+
+                # Si la position actuelle est dans la portée d'attaque, afficher une tuile statique (F)
+                if current_position in highlight_positions:
+                    self._screen.blit(self._dict["X"], (self._centeredItemX + self._stepX + 10,
+                                                        self._stepY +10 - int(self.elevation[self._col][self._row]) * 30))  # Tuiles statiques de portée
+
+                # Passer à la prochaine tuile
+                self._stepX += 19
+                self._stepY += 10
+                self._row += 1
+
+                # Vérifier si on atteint la fin de la rangée ou de la carte
+                if self._centeredItemX + self._stepX >= 800 - self._patch or self._row >= len(self.dungeon[self._col]):
+                    self._patch += 19
+                    self._row = self._rowTmp
+                    self._col += 1
+                    self._rewinderStepX -= 19
+                    self._stepX = self._rewinderStepX
+                    self._rewinderStepY += 10
+                    self._stepY = self._rewinderStepY
+
+                if self._centeredItemX + self._stepX <= 0 or self._col >= len(self.dungeon):
+                    break
+
+        return highlight_positions
+
+
 
 
         
@@ -170,7 +237,7 @@ class dungeonManager(object):
 
             # Health bar rendering
             if is_active and sprite.mapPosition == [self._col, self._row]:
-                sprite.healthBarePosition = [self._centeredItemX + self._stepX - 6, self._stepY - 20 - int(self.elevation[self._col][self._row]) * 20]
+                sprite.healthBarePosition = [self._centeredItemX + self._stepX + 7, self._stepY - 30 - int(self.elevation[self._col][self._row]) * 20]
                 sprite.draw_health_bar(screen)
 
 
@@ -219,7 +286,7 @@ class dungeonManager(object):
 
             # Health bar rendering
             if monster.mapPosition == [self._col, self._row]:
-                monster.healthBarePosition = [self._centeredItemX + self._stepX - 6, self._stepY - 20 - int(self.elevation[self._col][self._row]) * 20]
+                monster.healthBarePosition = [self._centeredItemX + self._stepX +7, self._stepY - 30 - int(self.elevation[self._col][self._row]) * 20]
                 monster.draw_health_bar(screen)
 
             # Move to the next tile in the row

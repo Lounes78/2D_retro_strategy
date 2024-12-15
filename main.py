@@ -89,8 +89,8 @@ class Game:
         self.font = pygame.font.SysFont("Courier New", 15).render(
             "Press Enter to continue or Esc to Exit.", True, (255, 255, 255)
         )
-        self.sound = self.media.loadSound(os.path.join('data', 'music', 'bjorn__lynne-_no_survivors_.mid'))
-        self.sound.music.play(-1)
+        self.sound = self.media.loadSound(os.path.join('data', 'music', 'game_menu.mp3'))
+        self.sound.music.play()
         self.dummy_counter = 0
         self.sprite_counter = 0
         self.dracko = None
@@ -108,7 +108,7 @@ class Game:
         panel_width, panel_height = 250, 70
         score_panel_rect = pygame.Rect(540, 0, panel_width, panel_height)
         panel_surface = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
-        panel_surface.fill((0, 0, 0, 30))  # Black with transparency (180 alpha)
+        panel_surface.fill((0, 0, 0, 100))  # Black with transparency (180 alpha)
         self.screen.blit(panel_surface, (score_panel_rect.x, score_panel_rect.y))
         
         # Border for the panel
@@ -252,8 +252,8 @@ class Game:
         """Loads the game after the hello screen."""
         pygame.time.delay(500)
         self.sound.music.stop()
-        self.sound = self.media.loadSound(os.path.join('data', 'music', 'bjorn__lynne-_the_long_journey_home.mid'))
-        # self.sound.music.play(-1)
+        self.sound = self.media.loadSound(os.path.join('data', 'music', 'game_.mp3'))
+        self.sound.music.play()
         
         # Initial version of the map
         self.file_path = "data/maps/firstDungeon.txt"
@@ -286,6 +286,7 @@ class Game:
         self.second_player = Player("Second Player", second_character_units)
 
         # highlighted target position
+        
         self.target_position_sprite = spriteManager(self.dungeon_manager, self.media, [0, 0])
         
         pygame.display.update()
@@ -379,7 +380,7 @@ class Game:
         highlighted_positions = set()
         
         new_zone_position = None
-        
+        show_attack_range=False
         while True:
 
 
@@ -490,7 +491,15 @@ class Game:
             #for monster in self.monsters:
                 #monster.draw(self.screen)
 
-            if active_unit.attack_selected: # gerer une seule tuile apres avoir choisi une attaque
+            if active_unit.attack_selected:
+                show_attack_range=True
+                self.attack_range_tiles= self.dungeon_manager.fillDungeon_attack_tiles(
+                        unit_position=active_unit.mapPosition,
+            selected_attack=active_unit.attacks[active_unit.selected_attack],
+            render=False
+        )
+
+                 # gerer une seule tuile apres avoir choisi une attaque
                 if key_input[K_UP]:
                     self.target_position_sprite.update(1)
                 elif key_input[K_DOWN]:
@@ -500,7 +509,8 @@ class Game:
                 elif key_input[K_RIGHT]:
                     self.target_position_sprite.update(4)
                 unit_position = self.target_position_sprite.mapPosition
-
+            else :
+                show_attack_range=False
             attack_position = active_unit.handle_attacks(key_input, self.screen, unit_position)  # ou est ce que tu as appuyé sur entrée quand tu geres une suile pour lattaque
             # print(active_unit.selected_attack)
             if active_unit.defense:
@@ -517,59 +527,78 @@ class Game:
             # find the ennemy and attack it
 
             if attack_position != None:
-                attack_animation_playing = True
-                attack_animation_position = attack_position
-                attack_animation_type = selected_attack
-                attack_animation_start_position = active_unit.mapPosition
-                animation_start_time = pygame.time.get_ticks()
-                for enemy_sprite in players[not (active_player_index)].sprite_managers:
-                    if enemy_sprite.mapPosition == attack_position:
-                        # print(f"this is the {attack_position}")
-                        if hasattr(active_unit, 'perform_special_attack'):
-                            print(f"{enemy_sprite.defense}")
-                            if not enemy_sprite.defense :
-                                active_unit.perform_special_attack(enemy_sprite)
+                attack_position_tuple=tuple(attack_position)
+
+
+
+                if attack_position_tuple in self.attack_range_tiles:
+                    attack_animation_playing = True
+                    attack_animation_position = attack_position
+                    attack_animation_type = selected_attack
+                    attack_animation_start_position = active_unit.mapPosition
+                    animation_start_time = pygame.time.get_ticks()
+                    for enemy_sprite in players[not (active_player_index)].sprite_managers:
+                        if enemy_sprite.mapPosition == attack_position:
+                            # print(f"this is the {attack_position}")
+                            if hasattr(active_unit, 'perform_special_attack'):
+                                print(f"{enemy_sprite.defense}")
+                                if not enemy_sprite.defense :
+                                    active_unit.perform_special_attack(enemy_sprite)
+                                else:
+                                    print(f"{enemy_sprite.name} is in a defensive state and will not take damage. ")
+                                    enemy_sprite.defense = False
                             else:
-                                print(f"{enemy_sprite.name} is in a defensive state and will not take damage. ")
-                                enemy_sprite.defense = False
-                        else:
-                            active_unit.perform_attack(30, enemy_sprite)
+                                active_unit.perform_attack(30, enemy_sprite)
 
-                        if not enemy_sprite.is_alive() and not enemy_sprite.marked_for_removal:
-                            enemy_sprite.marked_for_removal = True
-                            enemy_sprite.removal_time = pygame.time.get_ticks()
-                            #players[active_player_index].score += 1
+                            if not enemy_sprite.is_alive() and not enemy_sprite.marked_for_removal:
+                                enemy_sprite.marked_for_removal = True
+                                enemy_sprite.removal_time = pygame.time.get_ticks()
+                                #players[active_player_index].score += 1
 
-                        #change the player once attacked
-                        players[active_player_index].played = 0
-                        players[active_player_index].set_active(False)
-                        active_player_index = (active_player_index + 1) % len(players)
-                        players[active_player_index].set_active(True)
-                        last_turn_switch_time = current_time
+                            #change the player once attacked
+                            players[active_player_index].played = 0
+                            players[active_player_index].set_active(False)
+                            active_player_index = (active_player_index + 1) % len(players)
+                            players[active_player_index].set_active(True)
+                            last_turn_switch_time = current_time
 
-                for monster in self.monsters[:]:
-                    
-                    if monster.mapPosition == attack_position:
-                        damage=30
-                        #attack_animation_playing = True
-                        active_unit.perform_attack(damage, monster)
-                        if not monster.is_alive()and not monster.marked_for_removal:
-                            monster.marked_for_removal = True
-                            monster.removal_time = pygame.time.get_ticks()
-                            players[active_player_index].score += 500
-                            #self.monsters.remove(monster)
-                        players[active_player_index].played = 0
-                        players[active_player_index].set_active(False)
-                        active_player_index = (active_player_index + 1) % len(players)
-                        players[active_player_index].set_active(True)
-                        last_turn_switch_time = current_time
+                    for monster in self.monsters[:]:
+                        
+                        if monster.mapPosition == attack_position:
+                            damage=30
+                            #attack_animation_playing = True
+                            active_unit.perform_attack(damage, monster)
+                            if not monster.is_alive()and not monster.marked_for_removal:
+                                monster.marked_for_removal = True
+                                monster.removal_time = pygame.time.get_ticks()
+                                players[active_player_index].score += 500
+                                #self.monsters.remove(monster)
+                            players[active_player_index].played = 0
+                            players[active_player_index].set_active(False)
+                            active_player_index = (active_player_index + 1) % len(players)
+                            players[active_player_index].set_active(True)
+                            last_turn_switch_time = current_time
                             # Increment player score
                             #players[active_player_index].score += 1
+                else:
+                    print(f"Invalid attack position: {attack_position}. Out of range.")
 
             
             highlighted_positions = self.dungeon_manager.fillDungeon_tiles(unit_position, active_unit.attack_selected, selected_attack, players[active_player_index].played)
+            if show_attack_range:
+                self.dungeon_manager.fillDungeon_attack_tiles(
+                    unit_position=active_unit.mapPosition,
+                    selected_attack=active_unit.attacks[active_unit.selected_attack],render=True
+                )
+            #if show_attack_range:
+            #    self.dungeon_manager.fillDungeon_attack_tiles(
+            #        unit_position=active_unit.mapPosition,
+            #        selected_attack=active_unit.attacks[active_unit.selected_attack]
+            #    )
             # print(highlighted_positions)
             # Updates the units
+
+
             for player in players:
                 for sprite in player.sprite_managers:
                     sprite.dungeon.fillDungeon_sprites(sprite, sprite == active_unit, self.screen)

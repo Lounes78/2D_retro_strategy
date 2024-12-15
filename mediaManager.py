@@ -23,7 +23,7 @@ class loadMedia(object):
             self._musicBox = pygame.mixer
             self._musicBox.init()
             self._musicBox.music.load(self._fullName)
-            self._musicBox.music.set_volume(.7)
+            self._musicBox.music.set_volume(1)
         except pygame.error as message:
             print ("Can't Load sound file: ", self._fullName)
             raise SystemExit(message) 

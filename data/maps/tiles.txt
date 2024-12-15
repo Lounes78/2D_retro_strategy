@@ -12,3 +12,5 @@ N gray.png
 Q red.png
 L blue.png
 K white_flag.png
+X try.png
+V mountain.png

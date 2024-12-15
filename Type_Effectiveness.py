@@ -8,9 +8,9 @@
 
 ATTRIBUTE_EFFECTS = {
     "Water": {
-        "Fire": {"damage_multiplier": 2}, # Water deals double damage to Fire
-        "Ice": {"heal": -50},             # Water heals Ice instead of damaging it
-        "Thunder": {"damage_multiplier": 0.75}, # Water deals half damage to Thunder
+        "Fire": {"damage_multiplier": 2 , "slow" : 2}, # Water deals double damage to Fire
+        "Ice": {"heal": -50, "slow" : 1},             # Water heals Ice instead of damaging it
+        "Thunder": {"damage_multiplier": 0.75, "slow" : -2}, # Water deals half damage to Thunder
     },
     "Fire": {
         "Ice": {"damage_multiplier": 2.5, "burn": 3}, # Fire deals 2.5x damage to Ice and adds 3 turns of burn
@@ -27,7 +27,7 @@ ATTRIBUTE_EFFECTS = {
 }
 
 # Function to calculate damage and status effects based on attacker and target attributes
-def calculate_damage_and_effect(attacker, target, base_damage,burn=0,freeze=0,paralyze=0):
+def calculate_damage_and_effect(attacker, target, base_damage,burn=0,freeze=0,paralyze=0,slow=0):
     # Get the element types of the attacker and target
     attacker_type = getattr(attacker, "element_type", None)
     target_type = getattr(target, "element_type", None)
@@ -43,10 +43,11 @@ def calculate_damage_and_effect(attacker, target, base_damage,burn=0,freeze=0,pa
         burn += effects.get("burn", 0)
         freeze += effects.get("freeze", 0)
         paralyze += effects.get("paralyze", 0)
+        slow += effects.get("slow", 0)
 
         # Ensure durations are not negative
         burn = max(0, burn)
         freeze = max(0, freeze)
         paralyze = max(0, paralyze)
 
-    return damage, burn, freeze, paralyze
+    return damage, burn, freeze, paralyze,slow
