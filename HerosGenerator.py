@@ -8,7 +8,7 @@ from spriteManager import spriteManager  # Inherits from the parent class
 # define the son class of water
 class WaterSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
-        super().__init__(dungeon, media, mapPosition,move_range = 4)
+        super().__init__(dungeon, media, mapPosition,move_range = 5)
         self.name = name
         self.attacks = ["Water Splash", "Tsunami Wave","Defense"]
         self.element_type = "Water"
@@ -18,11 +18,13 @@ class WaterSprite(spriteManager):
 
         if self.attacks[self.selected_attack] == "Water Splash":
             base_damage = 20
+            base_slow_duration = 1
         elif self.attacks[self.selected_attack] == "Tsunami Wave":
             base_damage = 30
+            base_slow_duration = 3
 
         # Calculate damage and effects
-        damage, burn, freeze, paralyze = calculate_damage_and_effect(self, target, base_damage)
+        damage, burn_turn, freeze_turn, paralyze_turn,slow_turn = calculate_damage_and_effect(self, target, base_damage, slow=base_slow_duration)
 
         # Apply damage or healing
         if damage < 0:
@@ -31,10 +33,14 @@ class WaterSprite(spriteManager):
         else:
             target.take_damage(damage)
 
+        if slow_turn > 0:
+            target.apply_status_effect("Slow", slow_turn)
+            print(f"{slow_turn} turns remind")
+
 # define the son class of fire
 class FireSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
-        super().__init__(dungeon, media, mapPosition, move_range = 2)
+        super().__init__(dungeon, media, mapPosition, move_range = 3)
         self.name = name
         self.attacks = ["Fireball", "Flame Burst","Defense"]
         self.element_type = "Fire"
@@ -51,7 +57,7 @@ class FireSprite(spriteManager):
             base_burn_duration = 3
 
         # Calculate damage and effects
-        damage, burn_turn, freeze_turn, paralyze_turn = calculate_damage_and_effect(self, target, base_damage, burn=base_burn_duration)
+        damage, burn_turn, freeze_turn, paralyze_turn,slow_turn = calculate_damage_and_effect(self, target, base_damage, burn=base_burn_duration)
 
         # Apply damage or healing
         if damage < 0:
@@ -68,7 +74,7 @@ class FireSprite(spriteManager):
 # define the son class of ice
 class IceSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
-        super().__init__(dungeon, media, mapPosition,move_range = 1)
+        super().__init__(dungeon, media, mapPosition,move_range = 2)
         self.name = name
         self.attacks = ["Ice Spike", "Blizzard","Defense"]
         self.element_type = "Ice"
@@ -86,7 +92,7 @@ class IceSprite(spriteManager):
             base_frozen_duration = 3
 
         # Calculate damage and effects
-        damage, burn_turn, freeze_turn, paralyze_turn = calculate_damage_and_effect(self, target, base_damage, freeze=base_frozen_duration)
+        damage, burn_turn, freeze_turn, paralyze_turn,slow_turn = calculate_damage_and_effect(self, target, base_damage, freeze=base_frozen_duration)
 
         # Apply damage or healing
         if damage < 0:
@@ -106,7 +112,7 @@ class IceSprite(spriteManager):
 # define the son class of thunder
 class ThunderSprite(spriteManager):
     def __init__(self, dungeon, media, mapPosition, name):
-        super().__init__(dungeon, media, mapPosition,move_range = 1)
+        super().__init__(dungeon, media, mapPosition,move_range = 2)
         self.name = name
         self.attacks = ["Thunder Strike", "Lightning Storm","Defense"]
         self.element_type = "Thunder"
@@ -124,7 +130,7 @@ class ThunderSprite(spriteManager):
             base_paralyze_duration = 3  # 3 turn
 
         # Calculate damage and effects
-        damage, burn_turn, freeze_turn, paralyze_turn = calculate_damage_and_effect(self, target, base_damage, paralyze=base_paralyze_duration)
+        damage, burn_turn, freeze_turn, paralyze_turn,slow_turn = calculate_damage_and_effect(self, target, base_damage, paralyze=base_paralyze_duration)
 
         # Apply damage or healing
         if damage < 0:
