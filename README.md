@@ -45,10 +45,10 @@ Les highlighted tiles se comportent mal
 
 
 ### Attribute Resistance System ✅
-| **Element** | **Strong Against** | **Weak Against** | **Damage Multiplier** | **Special Effect**                                                              |
-|-------------|--------------------|------------------|-----------------------|---------------------------------------------------------------------------------|
-| **Water**   | Fire               | Thunder          | Fire x2               | Against Ice: Heal (dmg -50, when it's negative will heal the target), no damage <br/>Causes Burn on target|
-| **Fire**    | Ice                | Water            | Ice x2.5              | Causes Burn on target                                                           |
-| **Ice**     | Thunder, Water     | Fire             | Thunder, Water x1.5   | Causes Freeze on target                                                         |
-| **Thunder** | Water              | Ice              | Water x2              | Causes Paralysis on target                                                      |
+| **Element** | **Strong Against** | **Weak Against** | **Damage Multiplier** | **Special Effect**                                                                                         |
+|-------------|--------------------|------------------|-----------------------|------------------------------------------------------------------------------------------------------------|
+| **Water**   | Fire               | Thunder          | Fire x2               | Against Ice: Heal (dmg -50, when it's negative will heal the target), no damage <br/>Causes Slow on target |
+| **Fire**    | Ice                | Water            | Ice x2.5              | Causes Burn on target                                                                                      |
+| **Ice**     | Thunder, Water     | Fire             | Thunder, Water x1.5   | Causes Freeze on target                                                                                    |
+| **Thunder** | Water              | Ice              | Water x2              | Causes Paralysis on target                                                                                 |
 
