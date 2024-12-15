@@ -4,7 +4,7 @@ from pygame.locals import *
 
 class spriteManager(object):
 
-    def __init__(self, dungeon, media, mapPosition):
+    def __init__(self, dungeon, media, mapPosition, move_range = 2):
         self.menu_open = False
         self.attacks = ["Fireball", "Ice Spike", "Thunder Strike"]
         self.selected_attack = 0
@@ -17,11 +17,12 @@ class spriteManager(object):
         self.is_frozen = False  # frozen status
         self.is_burning = False  # burn status
         self.is_paralyze = False # paralyze status
+        self.is_slow = False
         self.Trigger_paralysis = False # use to check paralyze status
         self.element_type = "Neutral"
         self.defense = False
+        self.move_range = move_range
 
-        self.max_move = 2
         
         self.marked_for_removal = False
         #self.removal_time = None
@@ -286,6 +287,8 @@ class spriteManager(object):
             self.is_frozen = True
         elif effect_name == "Paralyze":
             self.is_paralyze = True
+        elif effect_name == "Slow":
+            self.is_slow = True
 
     def update_status_effects(self):
         """
@@ -294,8 +297,7 @@ class spriteManager(object):
         expired_effects = []
 
         for effect, duration in self.status_effects.items():
-            if self.status_effects[effect] % 2 == 0 :
-                print(f"{self.status_effects[effect]/2} turns remaining, health is {self.health}")
+            print(f"{self.status_effects[effect]} turns remaining, health is {self.health}")
             self.status_effects[effect] -= 1
             if self.status_effects[effect] <= 0:
                 print(f"{effect} is expired")
@@ -310,6 +312,8 @@ class spriteManager(object):
                 self.is_burning = False
             elif effect == "Paralyze":
                 self.is_paralyze = False
+            elif effect == "Slow" :
+                self.is_slow = False
 
         # Persistent damage for burning
         if self.is_burning:
@@ -326,3 +330,7 @@ class spriteManager(object):
                 print(f"{self.name} is paralyzed and cannot take actions this turn!")
             else:
                 print(f"{self.name} resists paralysis and can act this turn!")
+
+        # Frozen effect: Cannot move
+        if self.is_slow:
+            print(f"{self.name} is slow down !")
