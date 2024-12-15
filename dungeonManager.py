@@ -79,6 +79,7 @@ class dungeonManager(object):
                         
         highlight_positions = set()
         for monster in monsters:
+            highlight_positions.add((-1, -1))  
             highlight_positions.add(tuple(monster.mapPosition))
         if played == 0:    
             row, col = unit_positions
@@ -94,16 +95,22 @@ class dungeonManager(object):
         else: # utiliser le highlighte_positions precedent
             highlight_positions = self.previous_highlight_positions
         
+        # print(highlight_positions)
         while True:# boucle pour l'affiche en iso
             current_position = (self._col, self._row)
-
+            
             # Tile highlight
             if current_position in highlight_positions:
+                if any(current_position == tuple(monsters[i].mapPosition) for i in range(4)):
+                    highlight_type = "S"
+                else:
+                    highlight_type = "R"
+                    
                 if not target_position:
-                    self._screen.blit(self._dict["R"], (
+                    self._screen.blit(self._dict[highlight_type], (
                     self._centeredItemX + self._stepX, self._stepY - int(self.elevation[self._col][self._row]) * 20))
                 else:
-                    self._screen.blit(self._dict["R"], (
+                    self._screen.blit(self._dict[highlight_type], (
                     self._centeredItemX + self._stepX, self._stepY - int(self.elevation[self._col][self._row]) * 20))
                     
                     if selected_attack=="Thunder Strike":
