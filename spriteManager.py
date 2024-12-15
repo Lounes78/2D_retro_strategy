@@ -243,7 +243,7 @@ class spriteManager(object):
             if self.status_effects[effect] % 2 == 0 :
                 print(f"{self.status_effects[effect]/2} turns remaining, health is {self.health}")
             self.status_effects[effect] -= 1
-            if self.status_effects[effect] < 0:
+            if self.status_effects[effect] <= 0:
                 print(f"{effect} is expired")
                 expired_effects.append(effect)
 

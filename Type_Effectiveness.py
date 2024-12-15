@@ -17,12 +17,12 @@ ATTRIBUTE_EFFECTS = {
         "Water": {"damage_multiplier": 0.5, "burn": -2}, # Fire deals half damage to Water and reduces burn by 2 turns
     },
     "Ice": {
-        "Water": {"damage_multiplier": 1.5, "freeze": 4}, # Ice deals 1.5x damage to Water and adds 2 turns of freeze
+        "Water": {"damage_multiplier": 1.5, "freeze": 2}, # Ice deals 1.5x damage to Water and adds 2 turns of freeze
         "Thunder": {"damage_multiplier": 1.5}, # Ice deals 1.5x damage to Thunder
         "Fire": {"damage_multiplier": 0.5}, # Ice deals half damage to Fire
     },
     "Thunder": {
-        "Water": {"damage_multiplier": 1.5, "paralyze": 4}, # Thunder deals double damage to Water and adds 2 turns of paralysis
+        "Water": {"damage_multiplier": 1.5, "paralyze": 2}, # Thunder deals double damage to Water and adds 2 turns of paralysis
     }
 }
 

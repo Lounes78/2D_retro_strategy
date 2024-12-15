@@ -399,7 +399,7 @@ class Game:
                 players[active_player_index].set_active(False)
 
                 """-----------------------------"""
-                for sprite in self.all_sprites:
+                for sprite in players[active_player_index].sprite_managers:
                     sprite.update_status_effects()
 
                 active_player_index = (active_player_index + 1) % len(players)
@@ -458,6 +458,7 @@ class Game:
                                 print(f"{active_unit.name} is frozen and cannot take actions this turn.")
                             else :
                                 players[active_player_index].take_turn(0, current_unit_index, highlighted_positions, active_unit.mapPosition)
+
 
                     """def can_act(unit):
                         if active_unit.is_frozen:
