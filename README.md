@@ -31,16 +31,10 @@ Les highlighted tiles se comportent mal
 
 
 ### Attribute Resistance System
+| **Element** | **Strong Against** | **Weak Against** | **Damage Multiplier** | **Special Effect**                                                              |
+|-------------|--------------------|------------------|-----------------------|---------------------------------------------------------------------------------|
+| **Water**   | Fire               | Thunder          | Fire x2               | Against Ice: Heal (dmg -50, when it's negative will heal the target), no damage |
+| **Fire**    | Ice                | Water            | Ice x2.5              | Causes Burn on target                                                           |
+| **Ice**     | Thunder, Water     | Fire             | Thunder, Water x1.5   | Causes Freeze on target                                                         |
+| **Thunder** | Water              | Ice              | Water x2              | Causes Paralysis on target                                                      |
 
-- **Implemented:**
-  - Fire vs Water: Damage halved, burn duration -2 ✅
-
-- **To be implemented:**
-  - Water vs Fire: Damage x2  
-  - Water vs Ice: Heals Ice-type  
-  - Water vs Thunder: Damage halved  
-  - Fire vs Ice: Damage x2.5, burn duration +1  
-  - Ice vs Ice: No freezing effect  
-  - Ice vs Water: Damage x1.5, freeze duration +3  
-  - Thunder vs Water: Paralysis duration +2  
-  - Thunder vs Fire: Damage x0.75  
