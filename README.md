@@ -12,9 +12,9 @@
 
 --- Update current_unit_index when a unit gets eleminated ✅
 
---- attack animations
+--- attack animations 
 
---- domination process
+--- domination process ✅
 
 --- Bug a corriger (ou pas, on peut fermer les yeux): lorsque on move une fois avec un peros puis on change de perso. 
 Les highlighted tiles se comportent mal
