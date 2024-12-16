@@ -56,7 +56,7 @@ class FireSprite(spriteManager):
             base_burn_duration = 3
 
         # Calculate damage and effects
-        damage, burn_turn, freeze_turn, paralyze_turn = calculate_damage_and_effect(self, target, base_damage, burn=base_burn_duration)
+        damage, burn_turn, freeze_turn, paralyze_turn, slow_turn = calculate_damage_and_effect(self, target, base_damage, burn=base_burn_duration)
 
         if damage < 0:
             target.health -= damage
@@ -89,7 +89,7 @@ class IceSprite(spriteManager):
             base_frozen_duration = 3
 
         # Calculate damage and effects
-        damage, burn_turn, freeze_turn, paralyze_turn = calculate_damage_and_effect(self, target, base_damage, freeze=base_frozen_duration)
+        damage, burn_turn, freeze_turn, paralyze_turn, slow_turn= calculate_damage_and_effect(self, target, base_damage, freeze=base_frozen_duration)
 
         if damage < 0:
             target.health -= damage
@@ -126,7 +126,7 @@ class ThunderSprite(spriteManager):
             base_paralyze_duration = 3  # 3 turn
 
         # Calculate damage and effects
-        damage, burn_turn, freeze_turn, paralyze_turn = calculate_damage_and_effect(self, target, base_damage, paralyze=base_paralyze_duration)
+        damage, burn_turn, freeze_turn, paralyze_turn, slow_turn = calculate_damage_and_effect(self, target, base_damage, paralyze=base_paralyze_duration)
 
         if damage < 0:
             target.health -= damage
