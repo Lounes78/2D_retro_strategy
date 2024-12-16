@@ -1,3 +1,10 @@
+# How To Play
+--- [SPACE] To validate
+--- [M] To select Attack/Defense
+--- [TAB] To switch between Units
+--- [ECHAP] To exit
+
+
 # TO DO
 
 --- Limiter un mouvement à un carreau par tour  ✅
