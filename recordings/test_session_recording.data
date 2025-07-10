@@ -1,0 +1,21 @@
+{
+  "session_id": "test_session",
+  "start_time": 1752149460.4580355,
+  "duration": 6.580352783203125e-05,
+  "total_chunks": 2,
+  "gap_count": 0,
+  "filled_gaps": 0,
+  "quality_score": 1.0,
+  "agents": {
+    "Agent1": {
+      "chunk_count": 1,
+      "gap_count": 0,
+      "continuity_score": 1.0
+    },
+    "Agent2": {
+      "chunk_count": 1,
+      "gap_count": 0,
+      "continuity_score": 1.0
+    }
+  }
+}
