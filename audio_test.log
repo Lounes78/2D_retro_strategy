@@ -1,0 +1,10 @@
+2025-07-10 12:04:48,276 - ConversationManager - INFO - Added agent: Maya
+2025-07-10 12:04:48,276 - ConversationManager - INFO - Added agent: Miles
+2025-07-10 12:04:48,276 - ConversationRecorder - INFO - Started recording session: test_session
+2025-07-10 12:04:48,277 - ConversationManager - WARNING - Maya connection unstable
+2025-07-10 12:04:48,277 - AIAgent_Maya - INFO - Maya started receiving audio
+2025-07-10 12:04:48,278 - ConversationManager - WARNING - Miles connection unstable
+2025-07-10 12:04:48,278 - AIAgent_Miles - INFO - Miles started receiving audio
+2025-07-10 12:04:48,278 - ConversationManager - INFO - Started conversation with 2 agents
+2025-07-10 12:04:48,341 - ConversationManager - INFO - Maya connection stabilized
+2025-07-10 12:04:48,342 - ConversationManager - INFO - Miles connection stabilized
