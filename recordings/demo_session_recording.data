@@ -1,0 +1,21 @@
+{
+  "session_id": "demo_session",
+  "start_time": 1752149549.6622906,
+  "duration": 0.06503582000732422,
+  "total_chunks": 22,
+  "gap_count": 0,
+  "filled_gaps": 0,
+  "quality_score": 1.0,
+  "agents": {
+    "Maya": {
+      "chunk_count": 11,
+      "gap_count": 0,
+      "continuity_score": 1.0
+    },
+    "Miles": {
+      "chunk_count": 11,
+      "gap_count": 0,
+      "continuity_score": 1.0
+    }
+  }
+}
